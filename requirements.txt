@@ -1,0 +1,7 @@
+python-dotenv==0.15.0
+ShopifyAPI==8.1.0
+google-cloud-recommendations-ai==0.1.0
+google-cloud-bigquery==2.6.1
+pandas==1.2.0
+
+notebook==6.1.6
