@@ -81,12 +81,50 @@ jobs create http import_catalog_ip0ghe1truc1 \
 --oauth-service-account-email='recs-515@recommendations-ai-1234.iam.gserviceaccount.com'
 ```
 
+## Record user events on your shopify website
 
+- Create `/assets/user_events.js` in your theme code and copy code across
+- Load the javascript in `theme.liquid` file
+- Trigger events from your website
+
+When a user completes an action that can be used to train the model, you must send data to recommendations AI, which can be used for training.
+
+This involves adding tags to your website, which 'fire' when the user completes an important action. You need to pass information when firing the tag, like the id of the user and the id of the product.
+
+### How can I add javascript code to my website?
+
+- Edit the code for the website theme
+- Add `assets/recommendations_ai.js` with functions for recommendations AI
+- Load javascript file in theme liquid template
+- Trigger functions at various places in your website
+- `console.log('stuff')` or `alert('fired!')` from your javascript functions to see when they fire 
+- Save and preview, then try to trigger your event :)
+
+### Where should I trigger recommendations AI specific events from?
+
+### How an I pass data from shopify liquid backend to my javascript functions?
+https://www.youtube.com/watch?v=BaDbmXQXpxA&ab_channel=CodewithChristheFreelancer
+
+- Shopify liquid exposes data to the frontend so the website can render it - https://shopify.dev/docs/themes/liquid/reference/filters. This will be great for passing info to the functions you trigger.
+- The storefront API also allows me to access data from a third party. I could use this with a cloud function to retrieve everything I need for sending events and simplify the code that gets added to the shopify theme... However, then I have unecessary cost associated with firing cloud functions millions of times.
+- 
+
+
+- Can I just have a cloud function trigger on a pageview and use that function to send tracking data to recommendations ai? - https://tonyxu.io/posts/2018/use-firebase-cloud-function-to-count-website-visitors/
+
+## Show recs on your website
+
+- Shopify has a themed recs widget! I can simply request recs and show them if returned on the site - https://shopify.dev/tutorials/develop-theme-recommended-products-using-json-api#tracking-conversions-for-product-recommendations
+
+## Start an AB test
+
+- Before 
 
 ## ToDo
 
 ### Product Catalog
 
+- Pass session and user id from frontend to recommendations AI
 - Add required catalog fields
     - correctly add category heirarchies
 - Add optional catalog fields
@@ -96,4 +134,4 @@ jobs create http import_catalog_ip0ghe1truc1 \
 - Use GCP python client library for robust product upload - https://googleapis.dev/python/recommendationengine/latest/index.html
 - Schedule product catalog updates with cloud scheduler
 
-### 
+### User events
