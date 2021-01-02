@@ -3,6 +3,7 @@
 ## Prerequisites
 
 - Install Google Cloud Platform CLI and authenticate
+- Create a private app for your shopify store
 
 ## GCP setup
 
@@ -44,9 +45,9 @@
 ```
 
 
-## Add shopify products to the recommendations Ai catalog
+## Sync shopify products with the recommendations Ai catalog
 
-- Export products from shopify dashboard to simple csv and move to `./data/products_export_1.csv`
+- Set `SHOPIFY_SHOP_URL`, `SHOPIFY_API_VERSION` and `PRIVATE_APP_PASSWORD` environment variables
 - Generate a json file of parsed product info
 
 ```bash
@@ -83,55 +84,95 @@ jobs create http import_catalog_ip0ghe1truc1 \
 
 ## Record user events on your shopify website
 
+Users can be identified by their sessionId (unique for a session), clientId (unique for a given device) or userId (unique).
+
+### Prerequisites
+
+- Go to store > theme > edit theme code
+- Follow these instructions to [add analytics.js to your website](https://developers.google.com/analytics/devguides/collection/analyticsjs) with the correct google analytics project
 - Create `/assets/user_events.js` in your theme code and copy code across
 - Load the javascript in `theme.liquid` file
-- Trigger events from your website
 
-When a user completes an action that can be used to train the model, you must send data to recommendations AI, which can be used for training.
+### Recording events
 
-This involves adding tags to your website, which 'fire' when the user completes an important action. You need to pass information when firing the tag, like the id of the user and the id of the product.
+#### Required events
 
-### How can I add javascript code to my website?
+- detailPageView can be tracked with code added to product.liquid
+- addedToCart can be tracked with code added to theme.js after call to AJAX api
+- homePageView can be tracked with code added to index.liquid
+- purchaseComplete can be tracked with code added to settings > checkout > additional scripts. You can test this code by [placing a test order](https://help.shopify.com/en/manual/checkout-settings/test-orders). [See this for looping through products in the order](https://help.shopify.com/en/manual/orders/status-tracking/customize-order-status/add-conversion-tracking)
 
-- Edit the code for the website theme
-- Add `assets/recommendations_ai.js` with functions for recommendations AI
-- Load javascript file in theme liquid template
-- Trigger functions at various places in your website
-- `console.log('stuff')` or `alert('fired!')` from your javascript functions to see when they fire 
-- Save and preview, then try to trigger your event :)
+#### Suggested events
 
-### Where should I trigger recommendations AI specific events from?
+#### Nice to have events
 
-### How an I pass data from shopify liquid backend to my javascript functions?
-https://www.youtube.com/watch?v=BaDbmXQXpxA&ab_channel=CodewithChristheFreelancer
+## Serve recommendations to your users
 
-- Shopify liquid exposes data to the frontend so the website can render it - https://shopify.dev/docs/themes/liquid/reference/filters. This will be great for passing info to the functions you trigger.
-- The storefront API also allows me to access data from a third party. I could use this with a cloud function to retrieve everything I need for sending events and simplify the code that gets added to the shopify theme... However, then I have unecessary cost associated with firing cloud functions millions of times.
-- 
+You can serve recommendations anywhere in the customer journey.
 
+There are 4 model types, 3 of which use ML and require sufficient data to be collected before they can be trained.
 
-- Can I just have a cloud function trigger on a pageview and use that function to send tracking data to recommendations ai? - https://tonyxu.io/posts/2018/use-firebase-cloud-function-to-count-website-visitors/
+When you request recommendations, you pass a user event that triggered the request. This provides context. Eg if the user viewed a product detail page or landed on the home page you can pass as user event describing that to your call for recs.
 
-## Show recs on your website
+The returned response contains a list of products and corresponding token (to identify these as recommendations). You need to pass this token in subsequent user events that correspond to these recs.
 
-- Shopify has a themed recs widget! I can simply request recs and show them if returned on the site - https://shopify.dev/tutorials/develop-theme-recommended-products-using-json-api#tracking-conversions-for-product-recommendations
+You can filter recs by their tags and whether or not they are in stock.
 
-## Start an AB test
+### [How to serve recs](https://shopify.dev/tutorials/develop-theme-recommended-products-using-json-api#tracking-conversions-for-product-recommendations)
 
-- Before 
+- Add an HTML container where you want to serve the recommendations
+- Add a javascript function that finds your HTML container, requests recs and then appends products to DOM
+- Call function whenever the user loads the home page
 
 ## ToDo
 
-### Product Catalog
+- [ ] Serve recommendations
+    - [ ] Serve recently viewed recommendations on shopify site
+- [ ] User events
+    - [ ] Trigger encouraged events in shopify code
+    - [ ] Trigger nice-to-have events in shopify code
+    - [ ] Complete user_event payloads for different event types
+        - [ ] Add customerId for addToCart
+        - [ ] Add data for purchaseComplete event
+    - [ ] Test user event code in various browsers
+    - [ ] Change visitorId to sessionId? Docs recommend visitId be sessionId and customerId be userId. Is there space for the clientId somewhere?
+    - [ ] Export existing user events from shopify to recs Ai
+- [ ] Catalog
+    - [ ] Add required catalog fields
+        - [ ] add tags to filter recs
+        - [ ] correctly add category heirarchies
+    - [ ] Add optional catalog fields
+        - [ ] https://cloud.google.com/recommendations-ai/docs/catalog#required-fields
+    - [ ] Include custom feature maps
+    - [ ] Use GCP python client library for robust product upload - [ ] https://googleapis.dev/python/recommendationengine/latest/index.html
+    - [ ] Schedule product catalog updates
 
-- Pass session and user id from frontend to recommendations AI
-- Add required catalog fields
-    - correctly add category heirarchies
-- Add optional catalog fields
-    - https://cloud.google.com/recommendations-ai/docs/catalog#required-fields
-- Include custom feature maps per customer
-- Use shopify python client for robust product download
-- Use GCP python client library for robust product upload - https://googleapis.dev/python/recommendationengine/latest/index.html
-- Schedule product catalog updates with cloud scheduler
+## Implementation Checklist
 
-### User events
+- [ ] Periodically sync product catalog with our service
+- [ ] Log user events to our service
+- [ ] Collect 1 week of data (or import historical user events)
+- [ ] Train recommendation models for different placements
+- [ ] Serve recommendations in customer journey
+
+## Value Prop
+
+- Personalize for a given session, visitor or authenticated user
+- Ingest custom user and product features to improve recommendation quality
+- Pay only for the recommendations you serve to your customers
+- [4 core types of recommendations](https://cloud.google.com/recommendations-ai/docs/placements#model-types)
+    - *others you may like* predicts the next product a user will engage with
+    - *frequently bought together* predicts, given products currently being viewed, which items will be bought together within the same shopping session
+    - *recommended for you* predicts the next product a user will engage with/purchase given their shopping/viewing history
+    - *recently viewed* simply shows the most recently viewed products in order
+
+## Comparison
+
+|       | Ollie | Certona | 
+|-------|-------|---------|
+| Setup | non-technical DIY in <10 mins | Contact team for custom integration | 
+| Price | $X per recommendations request | $X/month | 
+
+## GCP bugs
+
+-
