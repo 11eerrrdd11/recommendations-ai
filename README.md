@@ -108,6 +108,16 @@ Users can be identified by their sessionId (unique for a session), clientId (uni
 
 ## Serve recommendations to your users
 
+How can I serve predictions to my users? 
+
+- Add an HTML container where you want to serve the recommendations
+- Add a javascript function that finds your HTML container, requests recs and then appends products to DOM
+- Call function whenever the user loads the home page
+
+```bash
+curl -X POST -H "Content-Type: application/json; charset=utf-8" --data  '{"dryRun": true, "userEvent": {"eventType": "detail-page-view","userInfo": {"visitorId": "645951754.1609442302"},"eventDetail": {},"productEventDetail": {"productDetails": [{"id": "6158282784966"}]}}}' https://recommendationengine.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/global/catalogs/default_catalog/eventStores/default_event_store/placements/recently_viewed_default:predict?key=AIzaSyCcX57W5aiUjWNeFfW4Qs8Gv8IND117iMc
+```
+
 You can serve recommendations anywhere in the customer journey.
 
 There are 4 model types, 3 of which use ML and require sufficient data to be collected before they can be trained.
@@ -120,14 +130,12 @@ You can filter recs by their tags and whether or not they are in stock.
 
 ### [How to serve recs](https://shopify.dev/tutorials/develop-theme-recommended-products-using-json-api#tracking-conversions-for-product-recommendations)
 
-- Add an HTML container where you want to serve the recommendations
-- Add a javascript function that finds your HTML container, requests recs and then appends products to DOM
-- Call function whenever the user loads the home page
-
 ## ToDo
 
 - [ ] Serve recommendations
+    - [x] Retrieve recently viewed recommendations via post request
     - [ ] Serve recently viewed recommendations on shopify site
+    - [ ] Hide API key from browsers
 - [ ] User events
     - [ ] Trigger encouraged events in shopify code
     - [ ] Trigger nice-to-have events in shopify code
@@ -173,6 +181,14 @@ You can filter recs by their tags and whether or not they are in stock.
 | Setup | non-technical DIY in <10 mins | Contact team for custom integration | 
 | Price | $X per recommendations request | $X/month | 
 
-## GCP bugs
+## Making this an application
 
--
+I can create a python or node application and use ngrok to expose it. Then I can creak webhooks in shopify admin, that send data to my application when things change. Webhooks allow the trigger to be on the shopify admin side :)
+
+The application can process the data and make changes to GCP or shopify using API calls.
+
+Webhooks will be a good solution for logging user purchase events or even updating the recommender catalog.
+
+When users interact with the site, events must be logged from the frontend. This will require tracking code of some kind. To modify the front end, I can make changes to theme code, or I can use script tags. When the app is installed into a shop, the script tags are added to their storefront without the theme needing to be updated. This would be great for tracking events without the user needing to modify theme code.
+
+To serve recs, I want a custom widget that displays on the front end... Ideally this would inherit shopify theme properties to have minimal UI work required.
