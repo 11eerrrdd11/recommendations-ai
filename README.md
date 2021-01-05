@@ -142,7 +142,7 @@ I can add code to my liquid file that loads recs when the section loads. Since i
         - [ ] remove-from-list (not available for Hexxee)
     - [ ] Complete required event payloads
         - [x] detail-page-view ()
-        - [] added-to-cart (customerId missing)
+        - [ ] added-to-cart (customerId missing)
         - [x] home-page-view ()
         - [ ] purchase-complete (everything missing)
     - [ ] Complete encouraged event payloads
