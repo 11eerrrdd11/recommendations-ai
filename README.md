@@ -101,28 +101,15 @@ jobs create http import_catalog_ip0ghe1truc1 \
 
 ## Record user events on your shopify website
 
-Users can be identified by their sessionId (unique for a session), clientId (unique for a given device) or userId (unique).
-
 ### Prerequisites
 
 - Go to store > theme > edit theme code
 - Follow these instructions to [add analytics.js to your website](https://developers.google.com/analytics/devguides/collection/analyticsjs) with the correct google analytics project
 - Create `/assets/user_events.js` in your theme code and copy code across
 - Load the javascript in `theme.liquid` file
+- Add scripts to trigger js functions elsewhere in theme
 
 ### Recording events
-
-#### Required events
-
-- detailPageView can be tracked with code added to product.liquid
-- addedToCart can be tracked with code added to theme.js after call to AJAX api
-- homePageView can be tracked with code added to index.liquid
-- purchaseComplete can be tracked with code added to settings > checkout > additional scripts. You can test this code by [placing a test order](https://help.shopify.com/en/manual/checkout-settings/test-orders). [See this for looping through products in the order](https://help.shopify.com/en/manual/orders/status-tracking/customize-order-status/add-conversion-tracking). Alternatively, you can use the admin webhook to trigger a cloud function with order payloads.
-- 
-
-#### Suggested events
-
-#### Nice to have events
 
 ## Serve recommendations to your users
 
@@ -136,19 +123,42 @@ I can add code to my liquid file that loads recs when the section loads. Since i
 
 ## ToDo
 
-- [ ] Serve recommendations
-    - [x] Retrieve recently viewed recommendations via post request
-    - [x] Retrive recently viewed recommendations json response on shopify site
+- [ ] Track user events
+    - [x] Trigger required events in shopify theme code
+        - [x] detail-page-view (product.liquid)
+        - [x] added-to-cart (theme.js `/cart/add.js` and `cart/update.js`)
+        - [x] home-page-view (index.liquid)
+        - [x] purchase-complete (settings > checkout > additional scripts or  webhook?)
+    - [x] Trigger encouraged events in shopify theme code
+        - [x] checkout-start (`onClick` to checkout button)
+        - [x] category-page-view (collection.liquid)
+        - [x] remove-from-cart (theme.js `/cart/change.js` and `cart/update.js`)
+        - [x] search (search.liquid)
+        - [x] shopping-cart-page-view (cart.liquid)
+    - [ ] Trigger nice-to-have events in shopify theme code
+        - [x] page-visit (onload method of js script loader)
+        - [ ] refund (`refunds/create` webhook)
+        - [ ] add-to-list (not available for Hexxee)
+        - [ ] remove-from-list (not available for Hexxee)
+    - [ ] Complete required event payloads
+        - [x] detail-page-view ()
+        - [] added-to-cart (customerId missing)
+        - [x] home-page-view ()
+        - [ ] purchase-complete (everything missing)
+    - [ ] Complete encouraged event payloads
+        - [ ] checkout-start ()
+        - [ ] category-page-view ()
+        - [ ] remove-from-cart ()
+        - [ ] search ()
+        - [ ] shopping-cart-page-view ()
+    - [ ] Complete nice-to-have event payloads
+        - [ ] page-visit ()
+        - [ ] refund ()
+        - [ ] add-to-list (not available for Hexxee)
+        - [ ] remove-from-list (not available for Hexxee)
     - [x] Hide API key from browsers with restricted cloud function
-    - [ ] Render recommendations in theme from response
-- [ ] User events
-    - [ ] Trigger encouraged events in shopify code
-    - [ ] Trigger nice-to-have events in shopify code
-    - [ ] Complete user_event payloads for different event types
-        - [ ] Add customerId for addToCart
-        - [ ] Add data for purchaseComplete event
-    - [x] Hide API key from browsers with restricted cloud function
-- [ ] Catalog
+    - [ ] Use script tags to trigger user events where possible
+- [ ] Sync catalog
     - [ ] Schedule product catalog updates with cloud function
     - [ ] Add required catalog fields
         - [ ] add tags to filter recs
@@ -156,17 +166,15 @@ I can add code to my liquid file that loads recs when the section loads. Since i
     - [ ] Add optional catalog fields
         - [ ] https://cloud.google.com/recommendations-ai/docs/catalog#required-fields
     - [ ] Include custom feature maps
-- [ ] AB testing
+- [ ] Serve recommendations
+    - [x] Retrieve recently viewed recommendations via post request
+    - [x] Retrieve recently viewed recommendations json response on shopify site
+    - [x] Hide API key from browsers with restricted cloud function
+    - [x] Render recommendations in theme from response
+    - [ ] In a separate HTML file, render recommendations identically to Hexee page
+    - [ ] Render recs on shopify site professionally
+- [ ] Start AB test
     - [ ] Add feature flags to turn recs on or off for shopify site
-
-
-## Implementation Checklist
-
-- [ ] Periodically sync product catalog with our service
-- [ ] Log user events to our service
-- [ ] Collect 1 week of data (or import historical user events)
-- [ ] Train recommendation models for different placements
-- [ ] Serve recommendations in customer journey
 
 ## Value Prop
 
@@ -181,10 +189,13 @@ I can add code to my liquid file that loads recs when the section loads. Since i
 
 ## Comparison
 
-|       | Ollie | Certona | 
+|       | Ollie | Certona | Shopify |
 |-------|-------|---------|
-| Setup | non-technical DIY in <10 mins | Contact team for custom integration | 
-| Price | $X per recommendations request | $X/month | 
+| Setup | non-technical DIY in <10 mins | Contact team for custom integration | no setup |
+| Price | $X per recommendations request | $X/month | free |
+| Max products | unlimited | unlimited | 5000 |
+| Types of recs | home, pdp, cart | home, pdp, cart | pdp |
+
 
 ## Making this an application
 
