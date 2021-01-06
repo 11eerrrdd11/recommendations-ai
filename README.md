@@ -32,17 +32,8 @@
 ```
 
 - Create an API key to log user events in the console
-
-```bash
-TODO
-```
-
 - Create a separate API key to request predictions in the console
 
-```bash
-    export PREDICTIONS_API_KEY=AIzaSyC4Z2hz21QcoxrU9vA7sCRbK9MY5oQn7Qc
-    curl -X POST -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "Content-Type: application/json; charset=utf-8" --data "{"predictionApiKeyRegistration": {"apiKey": '${PREDICTIONS_API_KEY}'}}" "https://recommendationengine.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/global/catalogs/default_catalog/eventStores/default_event_store/predictionApiKeyRegistrations"
-```
 
 
 
@@ -54,8 +45,14 @@ TODO
 export RECS_EVENT_KEY=<your recs event key>
 export RECS_PREDICT_KEY=<your predict key>
 export SHOPIFY_URL=<your website homepage>
-firebase functions:config:set shopify.url=${SHOPIFY_URL} recs.event_key=${RECS_EVENT_KEY} recs.predict_key=${RECS_PREDICT_KEY}
-firebase functions:config:get
+export SHOPIFY_SHOP_NAME=<your shop name>
+export SHOPIFY_API_KEY=<your private app api key>
+export SHOPIFY_APP_PASSWORD=<your private app password>
+export SHOPIFY_CURRENCY_CODE=<currency code for products in shopify admin>
+export ACCESS_TOKEN=<your default application token>
+
+firebase functions:config:set shopify.url=${SHOPIFY_URL} shopify.shop_name=${SHOPIFY_SHOP_NAME} shopify.api_key=${SHOPIFY_API_KEY} shopify.password=${SHOPIFY_APP_PASSWORD} recs.event_key=${RECS_EVENT_KEY} recs.predict_key=${RECS_PREDICT_KEY} gcp.default_access_token=${ACCESS_TOKEN}
+firebase functions:config:get > .runtimeconfig.json
 ```
 
 - Deploy cloud functions for catalog syncing, event logging and predictions requests
@@ -125,13 +122,12 @@ I can add code to my liquid file that loads recs when the section loads. Since i
 ## ToDo
 
 - [ ] Sync catalog
-    - [ ] Schedule product catalog updates with cloud function
-    - [ ] Add required catalog fields
-        - [ ] add tags to filter recs
-        - [ ] correctly add category heirarchies
-    - [ ] Add optional catalog fields
-        - [ ] https://cloud.google.com/recommendations-ai/docs/catalog#required-fields
-    - [ ] Include custom feature maps
+    - [x] Schedule product catalog updates with cloud function
+    - [x] Add required catalog fields
+    - [x] Add optional catalog fields
+    - [x] Add all possible custom product features
+    - [ ] Ensure working for Hexxee catalog
+    - [ ] Add category hierarchies
 - [ ] Serve recommendations
     - [x] Retrieve recently viewed recommendations via post request
     - [x] Retrieve recently viewed recommendations json response on shopify site
@@ -193,7 +189,7 @@ I can add code to my liquid file that loads recs when the section loads. Since i
 |       | Ollie | Certona | Shopify |
 |-------|-------|---------|
 | Setup | non-technical DIY in <10 mins | Contact team for custom integration | no setup |
-| Price | $X per recommendations request | $X/month | free |
+| Price | $X per recommendations request (eg $150/month @ 60,000 sessions/month) | $10000's/month | free |
 | Max products | unlimited | unlimited | 5000 |
 | Types of recs | home, pdp, cart | home, pdp, cart | pdp |
 
