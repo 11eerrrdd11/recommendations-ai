@@ -126,14 +126,13 @@ I can add code to my liquid file that loads recs when the section loads. Since i
     - [x] Add required catalog fields
     - [x] Add optional catalog fields
     - [x] Add all possible custom product features
-    - [ ] Ensure working for Hexxee catalog
-    - [ ] Add category hierarchies
+    - [ ] Add category hierarchies based on shopify collections
 - [ ] Serve recommendations
     - [x] Retrieve recently viewed recommendations via post request
     - [x] Retrieve recently viewed recommendations json response on shopify site
     - [x] Hide API key from browsers with restricted cloud function
     - [x] Render recommendations in theme from response
-    - [ ] In a separate HTML file, render recommendations identically to Hexee page
+    - [ ] In a separate HTML file, render recommendations identically to Hexxee page
     - [ ] Render recs on shopify site professionally
 - [ ] Track user events
     - [x] Trigger required events in shopify theme code

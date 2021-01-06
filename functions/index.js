@@ -3,7 +3,6 @@ const fetch = require("node-fetch");
 const cors = require('cors')({origin: functions.config().shopify.url});
 const Shopify = require('shopify-api-node');
 const { htmlToText } = require('html-to-text');
-const { BigQuery } = require("@google-cloud/bigquery");
 const PROJECT_ID = process.env.GCLOUD_PROJECT;
 
 
