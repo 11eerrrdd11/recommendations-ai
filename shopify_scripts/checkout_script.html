@@ -1,0 +1,81 @@
+<!-- Google Analytics -->
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  
+    ga('create', 'UA-94096343-6', 'auto');
+    </script>
+  
+  {% if first_time_accessed %}
+    // Conversion scripts you want to run only once
+  <script type="text/javascript">
+  
+  function purchaseComplete(){
+    console.log(`User completed purchase`)
+    
+    ga(async function(tracker) {
+      var clientId = tracker.get('clientId');
+      console.log(`client id = ${clientId}`);
+  
+  var productDetails = []
+  {% for line_item in checkout.line_items %}
+      var item = {{ line_item.product | json }}
+      productDetails.push({
+          id: `${item.id}`,
+          currencyCode:  "{{ currency }}",
+          originalPrice: item.price / 100,
+          displayPrice: item.price / 100,
+          quantity: {{line_item.quantity | json}}
+        });
+  {% endfor %}
+  console.log(productDetails);
+      
+      var user_event = {
+        "eventType": "purchase-complete",
+        "userInfo": {
+          "visitorId": `${clientId}`, // unique across browser sessions
+          "userId": "{{checkout.customer.id}}"
+        },
+        "eventDetail": {
+  //         "experimentIds": "321"
+        },
+        "productEventDetail": {
+          "cartId" : "{{ checkout.id }}",
+          "productDetails": productDetails,
+          "purchaseTransaction": {
+                "id": "{{ checkout.order_id }}",
+              "revenue":{{ checkout.total_price | money_without_currency | remove: ',' }},
+  //             "taxes": {"state": 3.4, "local": 0.41},
+  //             "costs": {"manufacturing": 45.5, "cost": 12.4},
+              "currencyCode": "{{ currency }}"
+           }
+        }
+      }
+      logUserEvent(user_event);
+    });
+  };
+  
+  async function logUserEvent(payload) {
+    const url = `https://us-central1-recommendations-ai-1234.cloudfunctions.net/logUserEvent`
+    console.log(JSON.stringify(payload));
+    const response = await fetch(url, { 
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json();
+    console.log(data);
+  //   alert(JSON.stringify(data));
+    return data;
+  }
+  
+  purchaseComplete();
+  
+  </script>
+  {% endif %}

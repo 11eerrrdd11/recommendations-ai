@@ -40,6 +40,7 @@ exports.logUserEvent = functions.https.onRequest((request, response) => {
         try {
             functions.logger.log(`Logging user event`);
             const event = request.body;
+            functions.logger.log(`event ${JSON.stringify(event)}`);
             const apiKey = functions.config().recs.event_key;
             const projectId = process.env.GCLOUD_PROJECT;
             const url = `https://recommendationengine.googleapis.com/v1beta1/projects/${projectId}/locations/global/catalogs/default_catalog/eventStores/default_event_store/userEvents:write?key=${apiKey}`
@@ -65,13 +66,88 @@ exports.logUserEvent = functions.https.onRequest((request, response) => {
     })
 });
 
-exports.updateProductCatalog = functions.pubsub.schedule('every 15 minutes').onRun((context) => {
-    console.log('Updating product catalog');
+// exports.orderPaid = functions.https.onRequest((request, response) => {
+//     // use cors to prevent requests from websites other than the client's shopify domain
+//     cors(request, response, async () => {
+//         try {
+//             functions.logger.log(`User paid for order`);
+            
+//         }
+//         catch(error){
+//             console.log(error)
+//             response.status(500).send(error)
+//             return
+//         }
+//     })
+// });
 
-    // TODO: download product data from Shopify Admin
+// exports.orderRefunded = functions.https.onRequest((request, response) => {
+//     // use cors to prevent requests from websites other than the client's shopify domain
+//     cors(request, response, async () => {
+//         try {
+//             functions.logger.log(`User paid for order`);
+            
+//         }
+//         catch(error){
+//             console.log(error)
+//             response.status(500).send(error)
+//             return
+//         }
+//     })
+// });
 
-    // convert to valid json format
+// exports.checkoutStart = functions.https.onRequest((request, response) => {
+//     // use cors to prevent requests from websites other than the client's shopify domain
+//     cors(request, response, async () => {
+//         try {
+//             functions.logger.log(`User paid for order`);
+            
+//         }
+//         catch(error){
+//             console.log(error)
+//             response.status(500).send(error)
+//             return
+//         }
+//     })
+// });
 
-    // import to Recommendations Ai
-    return null;
-});
+// exports.addedToCart = functions.https.onRequest((request, response) => {
+//     // use cors to prevent requests from websites other than the client's shopify domain
+//     cors(request, response, async () => {
+//         try {
+//             functions.logger.log(`User paid for order`);
+            
+//         }
+//         catch(error){
+//             console.log(error)
+//             response.status(500).send(error)
+//             return
+//         }
+//     })
+// });
+
+// exports.removedFromCart = functions.https.onRequest((request, response) => {
+//     // use cors to prevent requests from websites other than the client's shopify domain
+//     cors(request, response, async () => {
+//         try {
+//             functions.logger.log(`User paid for order`);
+            
+//         }
+//         catch(error){
+//             console.log(error)
+//             response.status(500).send(error)
+//             return
+//         }
+//     })
+// });
+
+// exports.updateProductCatalog = functions.pubsub.schedule('every 15 minutes').onRun((context) => {
+//     console.log('Updating product catalog');
+
+//     // TODO: download product data from Shopify Admin
+
+//     // convert to valid json format
+
+//     // import to Recommendations Ai
+//     return null;
+// });

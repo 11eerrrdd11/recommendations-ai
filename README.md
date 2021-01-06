@@ -108,6 +108,7 @@ jobs create http import_catalog_ip0ghe1truc1 \
 - Create `/assets/user_events.js` in your theme code and copy code across
 - Load the javascript in `theme.liquid` file
 - Add scripts to trigger js functions elsewhere in theme
+- Enable [userId tracking in google analytics](https://support.google.com/analytics/answer/3123666)
 
 ### Recording events
 
@@ -123,41 +124,6 @@ I can add code to my liquid file that loads recs when the section loads. Since i
 
 ## ToDo
 
-- [ ] Track user events
-    - [x] Trigger required events in shopify theme code
-        - [x] detail-page-view (product.liquid)
-        - [x] added-to-cart (theme.js `/cart/add.js` and `cart/update.js`)
-        - [x] home-page-view (index.liquid)
-        - [x] purchase-complete (settings > checkout > additional scripts or  webhook?)
-    - [x] Trigger encouraged events in shopify theme code
-        - [x] checkout-start (`onClick` to checkout button)
-        - [x] category-page-view (collection.liquid)
-        - [x] remove-from-cart (theme.js `/cart/change.js` and `cart/update.js`)
-        - [x] search (search.liquid)
-        - [x] shopping-cart-page-view (cart.liquid)
-    - [ ] Trigger nice-to-have events in shopify theme code
-        - [x] page-visit (onload method of js script loader)
-        - [ ] refund (`refunds/create` webhook)
-        - [ ] add-to-list (not available for Hexxee)
-        - [ ] remove-from-list (not available for Hexxee)
-    - [ ] Complete required event payloads
-        - [x] detail-page-view ()
-        - [ ] added-to-cart (customerId missing)
-        - [x] home-page-view ()
-        - [ ] purchase-complete (everything missing)
-    - [ ] Complete encouraged event payloads
-        - [ ] checkout-start ()
-        - [ ] category-page-view ()
-        - [ ] remove-from-cart ()
-        - [ ] search ()
-        - [ ] shopping-cart-page-view ()
-    - [ ] Complete nice-to-have event payloads
-        - [ ] page-visit ()
-        - [ ] refund ()
-        - [ ] add-to-list (not available for Hexxee)
-        - [ ] remove-from-list (not available for Hexxee)
-    - [x] Hide API key from browsers with restricted cloud function
-    - [ ] Use script tags to trigger user events where possible
 - [ ] Sync catalog
     - [ ] Schedule product catalog updates with cloud function
     - [ ] Add required catalog fields
@@ -173,6 +139,41 @@ I can add code to my liquid file that loads recs when the section loads. Since i
     - [x] Render recommendations in theme from response
     - [ ] In a separate HTML file, render recommendations identically to Hexee page
     - [ ] Render recs on shopify site professionally
+- [ ] Track user events
+    - [x] Trigger required events in shopify theme code
+        - [x] detail-page-view (product.liquid)
+        - [x] added-to-cart (theme.js `/cart/add.js` and `cart/update.js` or webhook)
+        - [x] home-page-view (index.liquid)
+        - [x] purchase-complete (`order payment` webhook gives all data)
+    - [x] Trigger encouraged events in shopify theme code
+        - [x] checkout-start (`onClick` to checkout button)
+        - [x] category-page-view (collection.liquid)
+        - [x] remove-from-cart (theme.js `/cart/change.js` and `cart/update.js`)
+        - [x] search (search.liquid)
+        - [x] shopping-cart-page-view (cart.liquid)
+    - [ ] Trigger nice-to-have events in shopify theme code
+        - [x] page-visit (onload method of js script loader)
+        - [ ] refund (`refunds/create` webhook)
+        - [x] add-to-list (not available for Hexxee)
+        - [x] remove-from-list (not available for Hexxee)
+    - [x] Complete required event payloads
+        - [x] detail-page-view
+        - [x] added-to-cart
+        - [x] home-page-view
+        - [x] purchase-complete
+    - [x] Complete encouraged event payloads
+        - [x] checkout-start
+        - [x] category-page-view
+        - [x] remove-from-cart
+        - [x] search
+        - [x] shopping-cart-page-view ()
+    - [ ] Complete nice-to-have event payloads
+        - [ ] page-visit (requires all products on the visited page)
+        - [ ] refund (webhook can trigger but no UID)
+        - [x] add-to-list (not available for Hexxee)
+        - [x] remove-from-list (not available for Hexxee)
+    - [x] Hide API key from browsers with restricted cloud function
+    - [ ] Use script tags and webhooks so no changes to theme
 - [ ] Start AB test
     - [ ] Add feature flags to turn recs on or off for shopify site
 
