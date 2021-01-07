@@ -105,13 +105,13 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
 - [ ] Record user events
     - [x] Trigger required events in shopify theme code
         - [x] detail-page-view (product.liquid)
-        - [ ] added-to-cart (theme.js `/cart/add.js` and `cart/update.js` or webhook)
+        - [x] added-to-cart (theme.js `/cart/add.js` and `cart/update.js` or webhook)
         - [x] home-page-view (index.liquid)
         - [x] purchase-complete (`order payment` webhook gives all data)
     - [x] Trigger encouraged events in shopify theme code
         - [x] checkout-start (`onClick` to checkout button)
         - [x] category-page-view (collection.liquid)
-        - [ ] remove-from-cart (theme.js `/cart/change.js` and `cart/update.js`)
+        - [x] removed-from-cart (theme.js `/cart/change.js` and `cart/update.js`)
         - [x] search (search.liquid)
         - [x] shopping-cart-page-view (cart.liquid)
     - [ ] Trigger nice-to-have events in shopify theme code
@@ -138,9 +138,16 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
     - [x] Hide API key from browsers with restricted cloud function
 - [ ] Start AB test
     - [ ] Add feature flags to turn recs on or off for shopify site
+- [ ] Hexxee application requirements
+    - [x] Save clientId, customerId and cartId to my backend using a cloud function
+    - [ ] Log addToCart & removedFromCart from cloud function webhook
+    - [ ] Log purchaseComplete from webhook
+    - [ ] Load tracking code and javascript functions with script tags
+    - [ ] Render recommendations with script tags
 - [ ] Minimum public application requirements
     - [ ] Save clientId and customerId to my backend using script tag
     - [ ] Capture required user events with script tags and webhooks
+    - [ ] Keep track of latest shopping cart json with webhook cloud functions. Query object when you need to determine how the cart changed.
     - [ ] Load tracking code and javascript functions with script tags
     - [ ] Render recommendations with script tags
 

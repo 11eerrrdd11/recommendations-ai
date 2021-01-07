@@ -1,9 +1,110 @@
+const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 const fetch = require("node-fetch");
 const cors = require('cors')({origin: functions.config().shopify.url});
 const Shopify = require('shopify-api-node');
 const { htmlToText } = require('html-to-text');
 const PROJECT_ID = process.env.GCLOUD_PROJECT;
+
+admin.initializeApp(functions.config().firebase);
+
+// Log events when the cart items change
+exports.cartUpdated = functions.https.onRequest((request, response) => {
+    // use cors to prevent requests from websites other than the client's shopify domain
+    cors(request, response, async () => {
+        try {
+            const updatedCart = request.body;
+            const cartId = updatedCart.id;
+            functions.logger.log(`Cart ${cartId} updated`);
+
+            // retrieve the record for this cart & it's clientId/userId
+            const docRef = admin.firestore().collection('carts').doc(cartId)
+            const cartDoc = await docRef.get();
+            if (!cartDoc.exists) {
+                functions.logger.log(`Previous cart document not found in firestore`);
+                return
+            } 
+            const cartData = cartDoc.data();
+            const clientId = cartData.clientId;
+            const userId = cartData.userId;
+
+            // retrieve the previous cart object from firestore
+            const previousCart = cartData.previousCart;
+            functions.logger.log(`Previous cart json payload: ${JSON.stringify(previousCart)}`);
+            functions.logger.log(`New cart json payload: ${JSON.stringify(updatedCart)}`);
+
+            // TODO: compare the two cart objects
+            if ( typeof previousCart !== 'undefined' && previousCart ){
+                functions.logger.log(`previous cart found`);
+                // find difference between carts
+
+                // const productDifference = _compareCarts(previousCart, updatedCart)
+
+                // log events
+                const updateTimestamp = updatedCart.updated_at;
+            } else{
+                functions.logger.log(`no previous cart found`);
+
+                // the cart was just created
+                const addedItems = updatedCart.line_items;
+                const productDetails = _parseLineItems(addedItems)
+                console.log(JSON.stringify(productDetails));
+                // const userEvent = {
+
+                // }
+            }
+            // await logUserEventAsync(userEvent);
+
+            // update cart object in firestore
+            const updatedCartData = {
+                clientId: clientId,
+                userId: userId,
+                previousCart: updatedCart,
+            }
+            await docRef.set(updatedCartData, { merge: true });
+            response.status(200).send({'message': 'successfully completed cartUpdate function'})
+        }
+        catch(error){
+            console.log(error)
+            response.status(500).send(error)
+            return
+        }
+    })
+});
+
+const _parseLineItems = function(lineItems) {
+    return lineItems.map((item) => {
+        return {
+            id: `${item.product_id }`,
+            currencyCode: item.price_set.presentment_money.currency_code,
+            originalPrice: item.price,
+            displayPrice: item.price,
+            quantity: item.quantity
+        };
+    });
+}
+
+// Save which cart belongs to which user for use in cartUpdated webhook
+exports.saveCart = functions.https.onRequest((request, response) => {
+    // use cors to prevent requests from websites other than the client's shopify domain
+    cors(request, response, async () => {
+        try {
+            const { clientId, userId, cartId } = request.body;
+            const docRef = admin.firestore().collection('carts').doc(cartId);
+            await docRef.set({
+                'clientId': clientId,
+                'userId': userId
+            }, { merge: true });
+            response.status(200).send({});
+            return
+        }
+        catch(error){
+            console.log(error)
+            response.status(500).send(error)
+            return
+        }
+    })
+});
 
 
 exports.getRecommendations = functions.https.onRequest((request, response) => {
