@@ -1,11 +1,11 @@
-# Recommendations Ai
+# Shopify Recommendations Ai
 
 ## Prerequisites
 
 - Install Google Cloud Platform CLI and authenticate
 - Create a private app for your shopify store
 
-## GCP setup
+## Setup Google Cloud Infrastructure
 
 - Create and enable a new project
 
@@ -15,29 +15,22 @@
     gcloud config set project ${PROJECT_ID}
 ```
 
-- Link a billing account
+- Link a billing account in the console
 - Enable the recommendations api
 
 ```bash
     gcloud services enable recommendationengine.googleapis.com
 ```
 
-- Create a service account key so your application can interact with the catalogue API (TODO: add required permissions)
+- [Create a service account in the GCP console](https://cloud.google.com/recommendations-ai/docs/setting-up#service-account)
+- On the recs AI dashboard
+    - create an unregistered API key to log user events
+    - create a registered API key to request predictions
+- Initialize firebase and select your project
 
 ```bash
-    export SERVICE_ACCOUNT_NAME=recommendations
-    gcloud iam service-accounts create ${SERVICE_ACCOUNT_NAME}
-
-    gcloud iam service-accounts keys create ~/key.json --iam-account ${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
+    firebase init
 ```
-
-- Create an API key to log user events in the console
-- Create a separate API key to request predictions in the console
-
-
-
-
-## Sync shopify products with the recommendations Ai catalog
 
 - Set environment variables for your project
 
@@ -48,79 +41,58 @@ export SHOPIFY_URL=<your website homepage>
 export SHOPIFY_SHOP_NAME=<your shop name>
 export SHOPIFY_API_KEY=<your private app api key>
 export SHOPIFY_APP_PASSWORD=<your private app password>
-export SHOPIFY_CURRENCY_CODE=<currency code for products in shopify admin>
+export SHOPIFY_CURRENCY_CODE=<currency code for products in shopify admin console>
 export ACCESS_TOKEN=<your default application token>
 
 firebase functions:config:set shopify.url=${SHOPIFY_URL} shopify.shop_name=${SHOPIFY_SHOP_NAME} shopify.api_key=${SHOPIFY_API_KEY} shopify.password=${SHOPIFY_APP_PASSWORD} recs.event_key=${RECS_EVENT_KEY} recs.predict_key=${RECS_PREDICT_KEY} gcp.default_access_token=${ACCESS_TOKEN}
 firebase functions:config:get > .runtimeconfig.json
 ```
 
-- Deploy cloud functions for catalog syncing, event logging and predictions requests
+- Deploy cloud functions for shopify catalog syncing, event logging and predictions requests
 
 ```bash
 firebase deploy --only functions
 ```
 
-- Set `SHOPIFY_SHOP_URL`, `SHOPIFY_API_VERSION` and `PRIVATE_APP_PASSWORD` environment variables
-- Generate a json file of parsed product info
+## Record user events on your shopify storefront
 
-```bash
-    python add_products.py
+- Go to store > themes > edit theme code
+- Paste our google analytics tracking code directly under the <head> tag in your theme.liquid file
+
+```html
+<!-- Google Analytics & uid tracking -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '<GOOGLE ANALYTICS ID>', 'auto');
+ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_id.
+</script>
 ```
 
-- Upload the products to bigquery
+- Add `./shopify_scripts/recommendation_events.js` & `./shopify_scripts/recommendation_requests.js` to the `assets` directory in your theme
+- Load the new javascript assets in your `theme.liquid` file under `<script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>`
 
-```bash
-    bq mk catalog
-    bq load --replace --source_format=NEWLINE_DELIMITED_JSON catalog.products ./data/preprocessed_products.json ./recommendations_ai_schema.json
+```html
+<script src="{{ 'recommendations_events.js' | asset_url }}" onload="pageVisit()"></script>
+<script src="{{ 'recommendations_requests.js' | asset_url }}"></script>
 ```
-
-- Set catalog level (TODO: not working)
-
-```bash
-curl -X PATCH -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "Content-Type: application/json; charset=utf-8" --data "{"catalogItemLevelConfig": {"eventItemLevel": "MASTER","predictItemLevel":"MASTER"}" "https://recommendationengine.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/global/catalogs/default_catalog/eventStores/default_event_store/predictionApiKeyRegistrations"
-```
-
-- Set up a scheduler job to import products from Bigquery to recommednations AI every 0th minute of every hour
-
-```bash
-gcloud scheduler --project recommendations-ai-1234 \
-jobs create http import_catalog_ip0ghe1truc1 \
---time-zone='America/Los_Angeles' \
---schedule='0 0 * * *' \
---uri='https://recommendationengine.googleapis.com/v1beta1/projects/39575376907/locations/global/catalogs/default_catalog/catalogItems:import' \
---description='Import Recommendations AI catalog data' \
---headers='Content-Type: application/json; charset=utf-8' \
---http-method='POST' \
---message-body='{"inputConfig":{"bigQuerySource":{"projectId":"recommendations-ai-1234","datasetId":"catalog","tableId":"products","dataSchema":"catalog_recommendations_ai"}}}' \
---oauth-service-account-email='recs-515@recommendations-ai-1234.iam.gserviceaccount.com'
-```
-
-## Record user events on your shopify website
-
-### Prerequisites
-
-- Go to store > theme > edit theme code
-- Follow these instructions to [add analytics.js to your website](https://developers.google.com/analytics/devguides/collection/analyticsjs) with the correct google analytics project
-- Create `/assets/user_events.js` in your theme code and copy code across
-- Load the javascript in `theme.liquid` file
-- Add scripts to trigger js functions elsewhere in theme
-- Enable [userId tracking in google analytics](https://support.google.com/analytics/answer/3123666)
-
-### Recording events
+- Log all kinds of user events in your theme code (see ToDo section below)
+- Deploy event logging code and wait 1 week to record data
+- Create models in recommendations Ai dashboard
 
 ## Serve recommendations to your users
 
-I need to create `recommended-for-you.liquid` section that defines a product recs carousel using other templates from the theme such as the product grid template. Then in that section I want to access a list of recommended products.
-
-The `theme.ProductRecommendations` function returns a function that sets the innerHTML of it's container. This function is registered to the `production-recommendations` section.
-
-The recommendations section simply uses the recommendations liquid object to render recs. I do not have this.
-
-I can add code to my liquid file that loads recs when the section loads. Since it's in liquid, I can load the template for the products?
+- Have a front end developer add code to your theme to request and serve recommendations in the customer journey
 
 ## ToDo
 
+- [ ] Minimum requirements to make this an application that can be installed into a storefront
+    - [ ] Load tracking code and javascript functions with script tags
+    - [ ] Capture required user events with script tags
+    - [ ] Render recommendations with script tags
 - [ ] Sync catalog
     - [x] Schedule product catalog updates with cloud function
     - [x] Add required catalog fields
@@ -134,16 +106,17 @@ I can add code to my liquid file that loads recs when the section loads. Since i
     - [x] Render recommendations in theme from response
     - [ ] In a separate HTML file, render recommendations identically to Hexxee page
     - [ ] Render recs on shopify site professionally
-- [ ] Track user events
+- [ ] Record user events
     - [x] Trigger required events in shopify theme code
         - [x] detail-page-view (product.liquid)
-        - [x] added-to-cart (theme.js `/cart/add.js` and `cart/update.js` or webhook)
+        - [ ] added-to-cart (theme.js `/cart/add.js` and `cart/update.js` or webhook)
         - [x] home-page-view (index.liquid)
         - [x] purchase-complete (`order payment` webhook gives all data)
     - [x] Trigger encouraged events in shopify theme code
         - [x] checkout-start (`onClick` to checkout button)
         - [x] category-page-view (collection.liquid)
         - [x] remove-from-cart (theme.js `/cart/change.js` and `cart/update.js`)
+            - [ ] doesn't work with remove from cart when quantity = 0
         - [x] search (search.liquid)
         - [x] shopping-cart-page-view (cart.liquid)
     - [ ] Trigger nice-to-have events in shopify theme code
@@ -168,20 +141,8 @@ I can add code to my liquid file that loads recs when the section loads. Since i
         - [x] add-to-list (not available for Hexxee)
         - [x] remove-from-list (not available for Hexxee)
     - [x] Hide API key from browsers with restricted cloud function
-    - [ ] Use script tags and webhooks so no changes to theme
 - [ ] Start AB test
     - [ ] Add feature flags to turn recs on or off for shopify site
-
-## Value Prop
-
-- Personalize for a given session, visitor or authenticated user
-- Ingest custom user and product features to improve recommendation quality
-- Pay only for the recommendations you serve to your customers
-- [4 core types of recommendations](https://cloud.google.com/recommendations-ai/docs/placements#model-types)
-    - *others you may like* predicts the next product a user will engage with
-    - *frequently bought together* predicts, given products currently being viewed, which items will be bought together within the same shopping session
-    - *recommended for you* predicts the next product a user will engage with/purchase given their shopping/viewing history
-    - *recently viewed* simply shows the most recently viewed products in order
 
 ## Comparison
 
@@ -190,17 +151,5 @@ I can add code to my liquid file that loads recs when the section loads. Since i
 | Setup | non-technical DIY in <10 mins | Contact team for custom integration | no setup |
 | Price | $X per recommendations request (eg $150/month @ 60,000 sessions/month) | $10000's/month | free |
 | Max products | unlimited | unlimited | 5000 |
-| Types of recs | home, pdp, cart | home, pdp, cart | pdp |
-
-
-## Making this an application
-
-I can create a python or node application and use ngrok to expose it. Then I can creak webhooks in shopify admin, that send data to my application when things change. Webhooks allow the trigger to be on the shopify admin side :)
-
-The application can process the data and make changes to GCP or shopify using API calls.
-
-Webhooks will be a good solution for logging user purchase events or even updating the recommender catalog.
-
-When users interact with the site, events must be logged from the frontend. This will require tracking code of some kind. To modify the front end, I can make changes to theme code, or I can use script tags. When the app is installed into a shop, the script tags are added to their storefront without the theme needing to be updated. This would be great for tracking events without the user needing to modify theme code.
-
-To serve recs, I want a custom widget that displays on the front end... Ideally this would inherit shopify theme properties to have minimal UI work required.
+| Types of recs | home, pdp, cart, recently viewed | home, pdp, cart, recently viewed| pdp, recently viewed |
+| Custom user & product features | yes | yes | no |
