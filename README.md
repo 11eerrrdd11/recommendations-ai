@@ -91,7 +91,7 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
 
 - [ ] Minimum requirements to make this an application that can be installed into a storefront
     - [ ] Load tracking code and javascript functions with script tags
-    - [ ] Capture required user events with script tags
+    - [ ] Capture required user events with script tags (storefront & checkout)
     - [ ] Render recommendations with script tags
 - [ ] Sync catalog
     - [x] Schedule product catalog updates with cloud function

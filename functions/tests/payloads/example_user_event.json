@@ -1,0 +1,18 @@
+{
+    "placement":"recently_viewed_default", 
+    "payload":{
+        "dryRun": true, 
+        "userEvent": {
+            "eventType": "detail-page-view",
+            "userInfo": {
+                "visitorId": "645951754.1609442302"
+            },
+            "eventDetail": {},
+            "productEventDetail": {
+                "productDetails": [
+                    {"id": "6158282784966"}
+                ]
+            }
+        }
+    }
+}
