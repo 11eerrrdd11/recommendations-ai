@@ -89,10 +89,6 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
 
 ## ToDo
 
-- [ ] Minimum requirements to make this an application that can be installed into a storefront
-    - [ ] Load tracking code and javascript functions with script tags
-    - [ ] Capture required user events with script tags (storefront & checkout)
-    - [ ] Render recommendations with script tags
 - [ ] Sync catalog
     - [x] Schedule product catalog updates with cloud function
     - [x] Add required catalog fields
@@ -115,15 +111,14 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
     - [x] Trigger encouraged events in shopify theme code
         - [x] checkout-start (`onClick` to checkout button)
         - [x] category-page-view (collection.liquid)
-        - [x] remove-from-cart (theme.js `/cart/change.js` and `cart/update.js`)
-            - [ ] doesn't work with remove from cart when quantity = 0
+        - [ ] remove-from-cart (theme.js `/cart/change.js` and `cart/update.js`)
         - [x] search (search.liquid)
         - [x] shopping-cart-page-view (cart.liquid)
     - [ ] Trigger nice-to-have events in shopify theme code
         - [x] page-visit (onload method of js script loader)
         - [ ] refund (`refunds/create` webhook)
-        - [x] add-to-list (not available for Hexxee)
-        - [x] remove-from-list (not available for Hexxee)
+        - [ ] add-to-list (not available for Hexxee)
+        - [ ] remove-from-list (not available for Hexxee)
     - [x] Complete required event payloads
         - [x] detail-page-view
         - [x] added-to-cart
@@ -143,6 +138,11 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
     - [x] Hide API key from browsers with restricted cloud function
 - [ ] Start AB test
     - [ ] Add feature flags to turn recs on or off for shopify site
+- [ ] Minimum public application requirements
+    - [ ] Save clientId and customerId to my backend using script tag
+    - [ ] Capture required user events with script tags and webhooks
+    - [ ] Load tracking code and javascript functions with script tags
+    - [ ] Render recommendations with script tags
 
 ## Comparison
 

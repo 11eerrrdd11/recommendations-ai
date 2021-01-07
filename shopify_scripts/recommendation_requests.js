@@ -68,7 +68,7 @@ function getRecentlyViewedProducts(customerId, product){
         return renderProductAsync(product.id, recommendationToken);
     })
     var listItems = (await Promise.all(newInnerHTMLPromises)).join(" ");
-    recentlyViewed.innerHTML = `<ul>${listItems}</ul>`   
+//     recentlyViewed.innerHTML = `<ul>${listItems}</ul>`   
   });
 }
 
