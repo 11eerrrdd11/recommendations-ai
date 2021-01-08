@@ -132,7 +132,7 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
         - [x] shopping-cart-page-view ()
     - [ ] Complete nice-to-have event payloads
         - [ ] page-visit (requires all products on the visited page)
-        - [ ] refund (webhook can trigger but no UID)
+        - [ ] refund (webhook can trigger)
         - [x] add-to-list (not available for Hexxee)
         - [x] remove-from-list (not available for Hexxee)
     - [x] Hide API key from browsers with restricted cloud function
@@ -141,9 +141,7 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
 - [ ] Hexxee application requirements
     - [x] Save clientId, customerId and cartId to my backend using a cloud function
     - [x] Log addToCart & removedFromCart from cloud function webhook
-    - [ ] Log purchaseComplete from webhook
-    - [ ] Secure webhook calls
-    - [ ] Load tracking code and javascript functions with script tags
+    - [x] Secure webhook calls
     - [ ] Render recommendations with script tags
 - [ ] Minimum public application requirements
     - [ ] Save clientId and customerId to my backend using script tag

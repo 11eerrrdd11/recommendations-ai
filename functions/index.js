@@ -5,98 +5,119 @@ const cors = require('cors')({origin: functions.config().shopify.url});
 const Shopify = require('shopify-api-node');
 const { htmlToText } = require('html-to-text');
 const PROJECT_ID = process.env.GCLOUD_PROJECT;
+const WEBHOOK_SECRET = functions.config().shopify.webhook_secret;
+var getRawBody = require('raw-body')
+const crypto = require("crypto");
 
 admin.initializeApp(functions.config().firebase);
 
-// Log events when the cart items change
-exports.cartUpdated = functions.https.onRequest((request, response) => {
-    // use cors to prevent requests from websites other than the client's shopify domain
-    cors(request, response, async () => {
-        try {
-            ///////
-            // POTENTIAL BUG
-            // update firestore asap to limit synchronicity issues (#TeCHnicalDEbt)
-            // if a subsequent invocation reads the cart before this function updates firestore 
-            // the cart retrieved will be out of date
-            ///////
-            const updatedCart = request.body;
-            const cartId = updatedCart.id;
-            functions.logger.log(`Cart ${cartId} updated and called webhook`);
-            const docRef = admin.firestore().collection('carts').doc(cartId)
-            const cartDoc = await docRef.get();
-            if (!cartDoc.exists) {
-                functions.logger.log(`Previous cart document not found in firestore. Cannot log events.`);
-                response.status(200).send({'message': 'Previous cart document not found in firestore. Cannot log events.'})
-                return
-            }
-            const cartData = cartDoc.data();
-            const clientId = cartData.clientId;
-            const userId = cartData.userId;
-            const updatedCartData = {
-                clientId: clientId,
-                userId: userId,
-                previousCart: updatedCart,
-            }
-            await docRef.set(updatedCartData, { merge: true });
-             
-            // retrieve the previous cart object
-            const previousCart = cartData.previousCart;
-            functions.logger.log(`Previous cart json payload: ${JSON.stringify(previousCart)}`);
-            functions.logger.log(`New cart json payload: ${JSON.stringify(updatedCart)}`);
-            
-            const userEvent = {
-                "userInfo": {
-                  "visitorId": `${clientId}`, // unique across browser sessions
-                  "userId": `${userId}` // unique across device sessions
-                },
-                "eventDetail" : {
-          //     	"experimentIds": "321"
-                },
-                "eventTime": updatedCart.updated_at,
-            }
+const webhookRequestFromShopify = (request) => {
+    const hmac = request.get('X-Shopify-Hmac-Sha256')
+    const body = request.rawBody;
+    const hash = crypto
+    .createHmac('sha256', WEBHOOK_SECRET)
+    .update(body, 'utf8', 'hex')
+    .digest('base64')
+    if (hash === hmac) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
-            // TODO: compare the two cart objects
-            if ( typeof previousCart !== 'undefined' && previousCart ){
-                const [eventName, productDetails] = _compareCarts(previousCart, updatedCart)
-                if (productDetails === null){
-                    functions.logger.log('No cart items changed quantity');
-                    response.status(200).send({'message': 'No cart items changed quantity'})
-                    return
-                }
-                Object.assign(
-                    userEvent,
-                    {
-                        "eventType": eventName,
-                        "productEventDetail": {
-                            "cartId" : `${cartId}`,
-                            "productDetails": productDetails
-                          } 
-                    }
-                );
-            } else{
-                const addedItems = updatedCart.line_items;
-                const productDetails = _parseLineItems(addedItems)
-                Object.assign(
-                    userEvent,
-                    {
-                        "eventType": 'add-to-cart',
-                        "productEventDetail": {
-                            "cartId" : `${cartId}`,
-                            "productDetails": productDetails
-                          } 
-                    }
-                );
-            }
-            functions.logger.log(`Cart changes: ${JSON.stringify(userEvent.productEventDetail.productDetails)}`);
-            await logUserEventAsync(userEvent);
-            response.status(200).send({'message': 'successfully completed cartUpdate function'})
-        }
-        catch(error){
-            console.log(error)
-            response.status(500).send(error)
+// Track changes to cart and log events
+exports.cartUpdated = functions.https.onRequest(async (request, response) => {
+
+    const fromShopify = webhookRequestFromShopify(request);
+    if (fromShopify === false){
+        functions.logger.log(`This request didn't originate from Shopify`)
+        response.status(403).send();
+    }
+    
+    try {
+        ///////
+        // POTENTIAL BUG
+        // update firestore asap to limit synchronicity issues (#TeCHnicalDEbt)
+        // if a subsequent invocation reads the cart before this function updates firestore 
+        // the cart retrieved will be out of date
+        ///////
+        const updatedCart = request.body;
+        const cartId = updatedCart.id;
+        functions.logger.log(`Cart ${cartId} updated and called webhook`);
+        const docRef = admin.firestore().collection('carts').doc(cartId)
+        const cartDoc = await docRef.get();
+        if (!cartDoc.exists) {
+            functions.logger.log(`Previous cart document not found in firestore. Cannot log events.`);
+            response.status(200).send({'message': 'Previous cart document not found in firestore. Cannot log events.'})
             return
         }
-    })
+        const cartData = cartDoc.data();
+        const clientId = cartData.clientId;
+        const userId = cartData.userId;
+        const updatedCartData = {
+            clientId: clientId,
+            userId: userId,
+            previousCart: updatedCart,
+        }
+        await docRef.set(updatedCartData, { merge: true });
+            
+        // retrieve the previous cart object
+        const previousCart = cartData.previousCart;
+        functions.logger.log(`Previous cart json payload: ${JSON.stringify(previousCart)}`);
+        functions.logger.log(`New cart json payload: ${JSON.stringify(updatedCart)}`);
+        
+        const userEvent = {
+            "userInfo": {
+                "visitorId": `${clientId}`, // unique across browser sessions
+                "userId": `${userId}` // unique across device sessions
+            },
+            "eventDetail" : {
+        //     	"experimentIds": "321"
+            },
+            "eventTime": updatedCart.updated_at,
+        }
+
+        // TODO: compare the two cart objects
+        if ( typeof previousCart !== 'undefined' && previousCart ){
+            const [eventName, productDetails] = _compareCarts(previousCart, updatedCart)
+            if (productDetails === null){
+                functions.logger.log('No cart items changed quantity');
+                response.status(200).send({'message': 'No cart items changed quantity'})
+                return
+            }
+            Object.assign(
+                userEvent,
+                {
+                    "eventType": eventName,
+                    "productEventDetail": {
+                        "cartId" : `${cartId}`,
+                        "productDetails": productDetails
+                        } 
+                }
+            );
+        } else{
+            const addedItems = updatedCart.line_items;
+            const productDetails = _parseLineItems(addedItems)
+            Object.assign(
+                userEvent,
+                {
+                    "eventType": 'add-to-cart',
+                    "productEventDetail": {
+                        "cartId" : `${cartId}`,
+                        "productDetails": productDetails
+                        } 
+                }
+            );
+        }
+        functions.logger.log(`Cart changes: ${JSON.stringify(userEvent.productEventDetail.productDetails)}`);
+        await logUserEventAsync(userEvent);
+        response.status(200).send({'message': 'successfully completed cartUpdate function'})
+    }
+    catch(error){
+        console.log(error)
+        response.status(500).send(error)
+        return
+    }
 });
 
 const _compareCarts = function(previousCart, nextCart){
