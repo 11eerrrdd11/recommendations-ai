@@ -140,8 +140,9 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
     - [ ] Add feature flags to turn recs on or off for shopify site
 - [ ] Hexxee application requirements
     - [x] Save clientId, customerId and cartId to my backend using a cloud function
-    - [ ] Log addToCart & removedFromCart from cloud function webhook
+    - [x] Log addToCart & removedFromCart from cloud function webhook
     - [ ] Log purchaseComplete from webhook
+    - [ ] Secure webhook calls
     - [ ] Load tracking code and javascript functions with script tags
     - [ ] Render recommendations with script tags
 - [ ] Minimum public application requirements

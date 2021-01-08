@@ -13,55 +13,82 @@ exports.cartUpdated = functions.https.onRequest((request, response) => {
     // use cors to prevent requests from websites other than the client's shopify domain
     cors(request, response, async () => {
         try {
+            ///////
+            // POTENTIAL BUG
+            // update firestore asap to limit synchronicity issues (#TeCHnicalDEbt)
+            // if a subsequent invocation reads the cart before this function updates firestore 
+            // the cart retrieved will be out of date
+            ///////
             const updatedCart = request.body;
             const cartId = updatedCart.id;
-            functions.logger.log(`Cart ${cartId} updated`);
-
-            // retrieve the record for this cart & it's clientId/userId
+            functions.logger.log(`Cart ${cartId} updated and called webhook`);
             const docRef = admin.firestore().collection('carts').doc(cartId)
             const cartDoc = await docRef.get();
             if (!cartDoc.exists) {
-                functions.logger.log(`Previous cart document not found in firestore`);
+                functions.logger.log(`Previous cart document not found in firestore. Cannot log events.`);
+                response.status(200).send({'message': 'Previous cart document not found in firestore. Cannot log events.'})
                 return
-            } 
+            }
             const cartData = cartDoc.data();
             const clientId = cartData.clientId;
             const userId = cartData.userId;
-
-            // retrieve the previous cart object from firestore
-            const previousCart = cartData.previousCart;
-            functions.logger.log(`Previous cart json payload: ${JSON.stringify(previousCart)}`);
-            functions.logger.log(`New cart json payload: ${JSON.stringify(updatedCart)}`);
-
-            // TODO: compare the two cart objects
-            if ( typeof previousCart !== 'undefined' && previousCart ){
-                functions.logger.log(`previous cart found`);
-                // find difference between carts
-
-                // const productDifference = _compareCarts(previousCart, updatedCart)
-
-                // log events
-                const updateTimestamp = updatedCart.updated_at;
-            } else{
-                functions.logger.log(`no previous cart found`);
-
-                // the cart was just created
-                const addedItems = updatedCart.line_items;
-                const productDetails = _parseLineItems(addedItems)
-                console.log(JSON.stringify(productDetails));
-                // const userEvent = {
-
-                // }
-            }
-            // await logUserEventAsync(userEvent);
-
-            // update cart object in firestore
             const updatedCartData = {
                 clientId: clientId,
                 userId: userId,
                 previousCart: updatedCart,
             }
             await docRef.set(updatedCartData, { merge: true });
+             
+            // retrieve the previous cart object
+            const previousCart = cartData.previousCart;
+            functions.logger.log(`Previous cart json payload: ${JSON.stringify(previousCart)}`);
+            functions.logger.log(`New cart json payload: ${JSON.stringify(updatedCart)}`);
+            
+            const userEvent = {
+                "userInfo": {
+                  "visitorId": `${clientId}`, // unique across browser sessions
+                  "userId": `${userId}` // unique across device sessions
+                },
+                "eventDetail" : {
+          //     	"experimentIds": "321"
+                },
+                "eventTime": updatedCart.updated_at,
+            }
+
+            // TODO: compare the two cart objects
+            if ( typeof previousCart !== 'undefined' && previousCart ){
+                const [eventName, productDetails] = _compareCarts(previousCart, updatedCart)
+                if (productDetails === null){
+                    functions.logger.log('No cart items changed quantity');
+                    response.status(200).send({'message': 'No cart items changed quantity'})
+                    return
+                }
+                Object.assign(
+                    userEvent,
+                    {
+                        "eventType": eventName,
+                        "productEventDetail": {
+                            "cartId" : `${cartId}`,
+                            "productDetails": productDetails
+                          } 
+                    }
+                );
+            } else{
+                const addedItems = updatedCart.line_items;
+                const productDetails = _parseLineItems(addedItems)
+                Object.assign(
+                    userEvent,
+                    {
+                        "eventType": 'add-to-cart',
+                        "productEventDetail": {
+                            "cartId" : `${cartId}`,
+                            "productDetails": productDetails
+                          } 
+                    }
+                );
+            }
+            functions.logger.log(`Cart changes: ${JSON.stringify(userEvent.productEventDetail.productDetails)}`);
+            await logUserEventAsync(userEvent);
             response.status(200).send({'message': 'successfully completed cartUpdate function'})
         }
         catch(error){
@@ -71,6 +98,80 @@ exports.cartUpdated = functions.https.onRequest((request, response) => {
         }
     })
 });
+
+const _compareCarts = function(previousCart, nextCart){
+    // returns productDetails denoting what changed in the cart 
+    previousItems = previousCart.line_items;
+    nextItems = nextCart.line_items;
+    functions.logger.log(`Previous lines: ${JSON.stringify(previousItems.map(i => {return {product_id: i.product_id, variant_id: i.variant_id, quantity: i.quantity}}))}`);
+    functions.logger.log(`New lines: ${JSON.stringify(nextItems.map(i => {return {product_id: i.product_id, variant_id: i.variant_id, quantity: i.quantity}}))}`);
+
+    var eventName = null;
+    var productDetails = null;
+
+    if (previousItems.length === 0 && nextItems.length > 0){
+        // an item was added to cart
+        // functions.logger.log(`Items added to empty cart`);
+        eventName = "add-to-cart";
+        productDetails = _parseLineItems(nextItems);
+        return [eventName, productDetails];
+    }
+
+    previousItems.every(currentItem => {
+        // functions.logger.log(`Checking if line with variant ${currentItem.id} changed in new cart.`);
+        
+        // A line_item represents a single line in the shopping cart. There is one line item for each distinct product variant in the cart.
+        // https://shopify.dev/docs/themes/liquid/reference/objects/line_item
+        const matchingLines = nextItems.filter(item => {
+            return item.id === currentItem.id;
+        });
+        if (matchingLines.length < 1){
+            // functions.logger.log(`Line does not exist in new cart`);
+            eventName = "remove-from-cart";
+            productDetails = [{
+                id: `${currentItem.product_id }`,
+                currencyCode: currentItem.price_set.presentment_money.currency_code,
+                originalPrice: currentItem.price,
+                displayPrice: currentItem.price,
+                quantity: currentItem.quantity
+            }];
+            return false; // breaks out of loop
+        } else {
+            // functions.logger.log(`Matching line found`);
+            var matchingLine = matchingLines[0];
+            if (matchingLine.quantity !== currentItem.quantity){
+                // functions.logger.log(`Line quantity changed`);
+                var quantityChange = matchingLine.quantity - currentItem.quantity;
+                if (quantityChange > 0){
+                    eventName = "add-to-cart";
+                    productDetails = [{
+                        id: `${matchingLine.product_id }`,
+                        currencyCode: matchingLine.price_set.presentment_money.currency_code,
+                        originalPrice: matchingLine.price,
+                        displayPrice: matchingLine.price,
+                        quantity: quantityChange
+                    }];
+                    return false; // breaks out of loop
+                } else {
+                    eventName = "remove-from-cart";
+                    productDetails = [{
+                        id: `${matchingLine.product_id }`,
+                        currencyCode: matchingLine.price_set.presentment_money.currency_code,
+                        originalPrice: matchingLine.price,
+                        displayPrice: matchingLine.price,
+                        quantity: -quantityChange
+                    }];
+                    return false; // breaks out of loop
+                }
+            } else {
+                // functions.logger.log(`Line did not change quantity. Continuing to next item.`);
+                return true;
+            }
+        }
+    });
+
+    return [eventName, productDetails];
+}
 
 const _parseLineItems = function(lineItems) {
     return lineItems.map((item) => {
@@ -137,22 +238,27 @@ exports.getRecommendations = functions.https.onRequest((request, response) => {
     })
 });
 
+const logUserEventAsync = async (user_event) => {
+    functions.logger.log(`event ${JSON.stringify(user_event)}`);
+    const apiKey = functions.config().recs.event_key;
+    const url = `https://recommendationengine.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/global/catalogs/default_catalog/eventStores/default_event_store/userEvents:write?key=${apiKey}`
+    functions.logger.log(`Logging user event to ${url}`);
+
+    const result = await fetch(url, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user_event)
+    });
+    return result;
+}
+
 exports.logUserEvent = functions.https.onRequest((request, response) => {
     // use cors to prevent requests from websites other than the client's shopify domain
     cors(request, response, async () => {
         try {
             functions.logger.log(`Logging user event`);
             const event = request.body;
-            functions.logger.log(`event ${JSON.stringify(event)}`);
-            const apiKey = functions.config().recs.event_key;
-            const url = `https://recommendationengine.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/global/catalogs/default_catalog/eventStores/default_event_store/userEvents:write?key=${apiKey}`
-            functions.logger.log(`Requesting predictions from ${url}`);
-    
-            const result = await fetch(url, { 
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(event)
-            });
+            const result = await logUserEventAsync(event);
             const status = result.status;
             functions.logger.log(`Call to recs API returned status ${status}`);
             response.status(status)
