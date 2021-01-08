@@ -89,6 +89,19 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
 
 ## ToDo
 
+On user cart creation:
+
+1) Save the clientId to the cart in firestore
+2) cartCreated webhook payload sent, which updates the cart document in firestore.
+
+The order of these two events in not gauranteed. For example, the front end request to add the clientId could complete before or after the backend trigger to save cart data. 
+
+That's fine. So long as both events trigger on cart creation!
+
+Then when a new cart is created, old carts are queried in firestore by their clientId and deleted.
+
+
+
 - [ ] Sync catalog
     - [x] Schedule product catalog updates with cloud function
     - [x] Add required catalog fields
@@ -138,15 +151,22 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
     - [x] Hide API key from browsers with restricted cloud function
 - [ ] Start AB test
     - [ ] Add feature flags to turn recs on or off for shopify site
-- [ ] Hexxee application requirements
-    - [x] Save clientId, customerId and cartId to my backend using a cloud function
-    - [x] Log addToCart & removedFromCart from cloud function webhook
+- [ ] Hexxee private application requirements
     - [x] Secure webhook calls
-    - [ ] Render recommendations with script tags
+    - [x] Save clientId, customerId and cartId to my backend using a cloud function
+    - [ ] Log addToCart & removedFromCart from cloud function webhook
+    - [ ] Log purchases from checkout
+    - [ ] Log remaining user events in theme
+    - [ ] Train models after 7 days of data
+    - [ ] Render recommendations in theme
 - [ ] Minimum public application requirements
-    - [ ] Save clientId and customerId to my backend using script tag
-    - [ ] Capture required user events with script tags and webhooks
-    - [ ] Keep track of latest shopping cart json with webhook cloud functions. Query object when you need to determine how the cart changed.
+    - [ ] When app installed, add client info to firestore
+    - [x] Save clientId and customerId with cartId to my backend
+    - [ ] Save clientId and customerId with checkoutId to my backend
+    - [x] Track cart in firestore & log events
+    - [ ] Track purchases with webhook
+    - [ ] Move all client-side tracking code out of liquid files and into javascript functions
+    - [ ] Track events with webhooks and client-side javascript function calls
     - [ ] Load tracking code and javascript functions with script tags
     - [ ] Render recommendations with script tags
 
@@ -159,3 +179,7 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
 | Max products | unlimited | unlimited | 5000 |
 | Types of recs | home, pdp, cart, recently viewed | home, pdp, cart, recently viewed| pdp, recently viewed |
 | Custom user & product features | yes | yes | no |
+
+## Integration
+
+- Clients are bad at even simple tasks like setting up billing for GCP. I should transfer pre setup accounts to them rather than
