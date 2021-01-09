@@ -72,7 +72,7 @@ exports.logCartEvents = functions.firestore.document("carts/{cartId}").onWrite(a
             return;
         }
     } catch (e){
-        console.log(error)
+        console.log(e)
     }
 });
 
