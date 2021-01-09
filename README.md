@@ -29,12 +29,10 @@
     gcloud services enable retail.googleapis.com
 ```
 
-- Create a new firebase project, selecting your new GCP project
-- Add the project to local firebase configuration
+- Initialize the firebase project. Make sure to select GCP project and enable only required resources. The only file that shoudl change is `.firebaserc`.
 
 ```bash
-    firebase use --add
-    firebase use <your alias>
+    firebase init
 ```
 
 - On the recs AI dashboard in GCP
@@ -57,7 +55,7 @@ export SHOPIFY_WEBHOOK_SECRET=<from settings > notifications > webhooks>
 - Configure firebase
 
 ```bash
-firebase functions:config:set shopify.webhook_secret=${SHOPIFY_WEBHOOK_SECRET} shopify.url=${SHOPIFY_URL} shopify.shop_name=${SHOPIFY_SHOP_NAME} shopify.api_key=${SHOPIFY_API_KEY} shopify.password=${SHOPIFY_APP_PASSWORD} recs.event_key=${RECS_EVENT_KEY} recs.predict_key=${RECS_PREDICT_KEY}
+firebase functions:config:set shopify.webhook_secret=${SHOPIFY_WEBHOOK_SECRET} shopify.currency_code=${SHOPIFY_CURRENCY_CODE} shopify.url=${SHOPIFY_URL} shopify.shop_name=${SHOPIFY_SHOP_NAME} shopify.api_key=${SHOPIFY_API_KEY} shopify.password=${SHOPIFY_APP_PASSWORD} recs.event_key=${RECS_EVENT_KEY} recs.predict_key=${RECS_PREDICT_KEY}
 
 firebase functions:config:get > ./functions/.runtimeconfig.json
 ```
@@ -164,7 +162,7 @@ ga('set', 'userId', '{{customer.id}}');
     - [ ] Toggle recommendations for users from two different experiments
     - [ ] Denote 
 - [ ] Hexxee phase 1
-    - [ ] Create recs API keys
+    - [x] Create recs API keys
     - [ ] Deploy cloud functions
     - [ ] Update client side function urls
     - [ ] Update webhook urls
