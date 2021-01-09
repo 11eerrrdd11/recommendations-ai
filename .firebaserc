@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "recommendations-ai-1234"
+    "default": "recommendations-ai-1234",
+    "hexxee": "hexxee-personalisation"
   }
 }
