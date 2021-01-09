@@ -1,6 +1,6 @@
 # Shopify Recommendations Ai
 
-## Prerequisites
+## Setup Shopify to GCP backend
 
 - Install Google Cloud Platform CLI and authenticate
 - Create a private app for your shopify store
@@ -55,9 +55,10 @@ firebase functions:config:get > ./functions/.runtimeconfig.json
 firebase deploy --only functions
 ```
 
-- Add webhooks in shopify > settings > notifications
+- Trigger your first catalog update (gcp > cloud scheduler > run)
+- Add webhooks (shopify > settings > notifications > webhooks) for cart creation, cart update and order payment
 
-## Record user events on your shopify storefront
+## Phase 1 - record user events on your shopify storefront
 
 - Go to store > themes > edit theme code
 - Paste our google analytics tracking code directly under the <head> tag in your theme.liquid file
@@ -71,40 +72,33 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
 ga('create', '<GOOGLE ANALYTICS ID>', 'auto');
-ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_id.
+ga('set', 'userId', '{{customer.id}}');
 </script>
 ```
 
-- Add `./shopify_scripts/recommendation_events.js` & `./shopify_scripts/recommendation_requests.js` to the `assets` directory in your theme
+- Add `./shopify_scripts/recommendation_events.js` & `./shopify_scripts/recommendation_requests.js` to the `assets` directory of your theme
+- Update cloud function urls in javascript files to match your deployed functions
 - Load the new javascript assets in your `theme.liquid` file under `<script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>`
 
 ```html
 <script src="{{ 'recommendations_events.js' | asset_url }}" onload="pageVisit()"></script>
 <script src="{{ 'recommendations_requests.js' | asset_url }}"></script>
 ```
-- Log all kinds of user events in your theme code (see ToDo section below)
-- Deploy event logging code and wait 1 week to record data
-- Create models in recommendations Ai dashboard
+- Log the following user events from your theme code
 
-## Serve recommendations to your users
+- [x] detail-page-view (product.liquid)
+- [x] home-page-view (index.liquid)
+- [x] checkout-start (`onClick` to checkout button)
+- [x] category-page-view (collection.liquid)
+- [x] search (search.liquid)
+- [x] shopping-cart-page-view (cart.liquid and delayed onclick if dynamic drawer)
 
-- Have a front end developer add code to your theme to request and serve recommendations in the customer journey
+## Phase 2 - serve recommendations in the customer journey
+
+- After 7 days you will have enough data to train models
+- Have a front end developer add code to your theme to request and serve recommendations in the customer journey. You can use the functions in recommendation_requests.js to get predictions.
 
 ## ToDo
-
-On user cart creation:
-
-1) Save the (cartId, clientId, userId) relationship to a firestore document
-2) cartCreated webhook payload sent, which updates the cart document in firestore and deletes any old carts for that user.
-3) firestore triggers attempt to retrieve the clientId and log events based on cart changes
-
-The order of events 1 and 2 is not gauranteed. The front end request to add the clientId could complete before or after the backend trigger to save cart data.  1 must complete before 3. Or 3 must wait for 1.
-
-That's fine. So long as both events trigger on cart creation and the clientId is added to the cart before that user completes payment. After this, the next add to cart event creates a new cart on the backend, repeating the process.
-
-Then when a new cart is created, old carts are queried in firestore by their clientId and deleted.
-
-
 
 - [ ] Sync catalog
     - [x] Schedule product catalog updates with cloud function
@@ -153,22 +147,21 @@ Then when a new cart is created, old carts are queried in firestore by their cli
         - [x] add-to-list (not available for Hexxee)
         - [x] remove-from-list (not available for Hexxee)
     - [x] Hide API key from browsers with restricted cloud function
-- [ ] Start AB test
-    - [ ] Add feature flags to turn recs on or off for shopify site
-- [ ] Hexxee private application requirements
+- [ ] Start AB test with client
+    - [ ] Toggle recommendations for users from two different experiments
+    - [ ] Denote 
+- [ ] Hexxee phase 1
+    - [ ] Create recs API keys
+    - [ ] Deploy cloud functions
+    - [ ] Update client side function urls
+    - [ ] Update webhook urls
     - [x] Secure webhook calls
-    - [x] Save reltionship between clientId and cartId to backend
-    - [x] Log addToCart & removedFromCart from cloud functions
-    - [x] Log purchases from checkout
-    - [ ] Log remaining user events in theme
-    - [ ] Train models after 7 days of data
-    - [ ] Render recommendations in theme
+    - [x] Save relationship between clientId and cartId to backend
+    - [x] Log addToCart & removedFromCart from backend
+    - [x] Log purchases from backend
+    - [x] Log remaining user events from frontend
 - [ ] Minimum public application requirements
     - [ ] When app installed, add client info to firestore
-    - [x] Save clientId and customerId with cartId to my backend
-    - [ ] Save clientId and customerId with checkoutId to my backend
-    - [x] Track cart in firestore & log events
-    - [ ] Track purchases with webhook
     - [ ] Move all client-side tracking code out of liquid files and into javascript functions
     - [ ] Track events with webhooks and client-side javascript function calls
     - [ ] Load tracking code and javascript functions with script tags
