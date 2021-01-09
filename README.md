@@ -1,34 +1,43 @@
 # Shopify Recommendations Ai
 
-## Setup Shopify to GCP backend
+## Client setup
+
+- Create a private app for your shopify store
+- Set up Google Cloud Platform
+    - Sign up for GCP
+    - Add a billing account
+    - Create a new project
+    - Link your billing account to the project
+    - Add contractor to project with the following roles
+        - Editor
+        - Recommendations Ai Admin
+
+## Deploy recommendations Ai backend
 
 - Install Google Cloud Platform CLI and authenticate
-- Create a private app for your shopify store
-- Create a new GCP project and add billing
-- Select project
+- Select GCP project
 
 ```bash
     export PROJECT_ID=<YOUR PROJECT ID>
     gcloud config set project ${PROJECT_ID}
 ```
 
-- Select the project
-- Enable the recommendations api
+- Enable the recommendations & retail APIs
 
 ```bash
     gcloud services enable recommendationengine.googleapis.com
+    gcloud services enable retail.googleapis.com
 ```
 
-
-- Add the project to firebase
+- Create a new firebase project, selecting your new GCP project
+- Add the project to local firebase configuration
 
 ```bash
     firebase use --add
-
     firebase use <your alias>
 ```
 
-- On the recs AI dashboard
+- On the recs AI dashboard in GCP
     - create an unregistered API key to log user events
     - create a registered API key to request predictions
 
@@ -43,7 +52,11 @@ export SHOPIFY_API_KEY=<your private app api key>
 export SHOPIFY_APP_PASSWORD=<your private app password>
 export SHOPIFY_CURRENCY_CODE=<currency code for products in shopify admin console>
 export SHOPIFY_WEBHOOK_SECRET=<from settings > notifications > webhooks>
+```
 
+- Configure firebase
+
+```bash
 firebase functions:config:set shopify.webhook_secret=${SHOPIFY_WEBHOOK_SECRET} shopify.url=${SHOPIFY_URL} shopify.shop_name=${SHOPIFY_SHOP_NAME} shopify.api_key=${SHOPIFY_API_KEY} shopify.password=${SHOPIFY_APP_PASSWORD} recs.event_key=${RECS_EVENT_KEY} recs.predict_key=${RECS_PREDICT_KEY}
 
 firebase functions:config:get > ./functions/.runtimeconfig.json
@@ -177,6 +190,7 @@ ga('set', 'userId', '{{customer.id}}');
 | Types of recs | home, pdp, cart, recently viewed | home, pdp, cart, recently viewed| pdp, recently viewed |
 | Custom user & product features | yes | yes | no |
 
-## Integration
+## Thoughts
 
-- Clients are bad at even simple tasks like setting up billing for GCP. I should transfer pre setup accounts to them rather than
+- Clients are bad at even simple tasks like setting up a GCP account with billing
+
