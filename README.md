@@ -4,35 +4,35 @@
 
 - Install Google Cloud Platform CLI and authenticate
 - Create a private app for your shopify store
-
-## Setup Google Cloud Infrastructure
-
-- Create and enable a new project
+- Create a new GCP project and add billing
+- Select project
 
 ```bash
-    export PROJECT_ID=recommendations-ai-1234
-    gcloud projects create ${PROJECT_ID} --name recommendations-ai 
+    export PROJECT_ID=<YOUR PROJECT ID>
     gcloud config set project ${PROJECT_ID}
 ```
 
-- Link a billing account in the console
+- Select the project
 - Enable the recommendations api
 
 ```bash
     gcloud services enable recommendationengine.googleapis.com
 ```
 
-- [Create a service account in the GCP console](https://cloud.google.com/recommendations-ai/docs/setting-up#service-account)
+
+- Add the project to firebase
+
+```bash
+    firebase use --add
+
+    firebase use <your alias>
+```
+
 - On the recs AI dashboard
     - create an unregistered API key to log user events
     - create a registered API key to request predictions
-- Initialize firebase and select your project
 
-```bash
-    firebase init
-```
-
-- Set environment variables for your project
+- Set environment variables
 
 ```bash
 export RECS_EVENT_KEY=<your recs event key>
@@ -42,10 +42,11 @@ export SHOPIFY_SHOP_NAME=<your shop name>
 export SHOPIFY_API_KEY=<your private app api key>
 export SHOPIFY_APP_PASSWORD=<your private app password>
 export SHOPIFY_CURRENCY_CODE=<currency code for products in shopify admin console>
-export ACCESS_TOKEN=<your default application token>
+export SHOPIFY_WEBHOOK_SECRET=<from settings > notifications > webhooks>
 
-firebase functions:config:set shopify.url=${SHOPIFY_URL} shopify.shop_name=${SHOPIFY_SHOP_NAME} shopify.api_key=${SHOPIFY_API_KEY} shopify.password=${SHOPIFY_APP_PASSWORD} recs.event_key=${RECS_EVENT_KEY} recs.predict_key=${RECS_PREDICT_KEY} gcp.default_access_token=${ACCESS_TOKEN}
-firebase functions:config:get > .runtimeconfig.json
+firebase functions:config:set shopify.webhook_secret=${SHOPIFY_WEBHOOK_SECRET} shopify.url=${SHOPIFY_URL} shopify.shop_name=${SHOPIFY_SHOP_NAME} shopify.api_key=${SHOPIFY_API_KEY} shopify.password=${SHOPIFY_APP_PASSWORD} recs.event_key=${RECS_EVENT_KEY} recs.predict_key=${RECS_PREDICT_KEY}
+
+firebase functions:config:get > ./functions/.runtimeconfig.json
 ```
 
 - Deploy cloud functions for shopify catalog syncing, event logging and predictions requests
@@ -53,6 +54,8 @@ firebase functions:config:get > .runtimeconfig.json
 ```bash
 firebase deploy --only functions
 ```
+
+- Add webhooks in shopify > settings > notifications
 
 ## Record user events on your shopify storefront
 
@@ -91,12 +94,13 @@ ga('set', 'userId', '{{customer.id}}'); // Set the user ID using signed-in user_
 
 On user cart creation:
 
-1) Save the clientId to the cart in firestore
-2) cartCreated webhook payload sent, which updates the cart document in firestore.
+1) Save the (cartId, clientId, userId) relationship to a firestore document
+2) cartCreated webhook payload sent, which updates the cart document in firestore and deletes any old carts for that user.
+3) firestore triggers attempt to retrieve the clientId and log events based on cart changes
 
-The order of these two events in not gauranteed. For example, the front end request to add the clientId could complete before or after the backend trigger to save cart data. 
+The order of events 1 and 2 is not gauranteed. The front end request to add the clientId could complete before or after the backend trigger to save cart data.  1 must complete before 3. Or 3 must wait for 1.
 
-That's fine. So long as both events trigger on cart creation!
+That's fine. So long as both events trigger on cart creation and the clientId is added to the cart before that user completes payment. After this, the next add to cart event creates a new cart on the backend, repeating the process.
 
 Then when a new cart is created, old carts are queried in firestore by their clientId and deleted.
 
@@ -118,13 +122,13 @@ Then when a new cart is created, old carts are queried in firestore by their cli
 - [ ] Record user events
     - [x] Trigger required events in shopify theme code
         - [x] detail-page-view (product.liquid)
-        - [x] added-to-cart (theme.js `/cart/add.js` and `cart/update.js` or webhook)
+        - [x] added-to-cart (webhook)
         - [x] home-page-view (index.liquid)
-        - [x] purchase-complete (`order payment` webhook gives all data)
+        - [x] purchase-complete (webhook)
     - [x] Trigger encouraged events in shopify theme code
         - [x] checkout-start (`onClick` to checkout button)
         - [x] category-page-view (collection.liquid)
-        - [x] removed-from-cart (theme.js `/cart/change.js` and `cart/update.js`)
+        - [x] removed-from-cart (webhook)
         - [x] search (search.liquid)
         - [x] shopping-cart-page-view (cart.liquid)
     - [ ] Trigger nice-to-have events in shopify theme code
@@ -153,9 +157,9 @@ Then when a new cart is created, old carts are queried in firestore by their cli
     - [ ] Add feature flags to turn recs on or off for shopify site
 - [ ] Hexxee private application requirements
     - [x] Secure webhook calls
-    - [x] Save clientId, customerId and cartId to my backend using a cloud function
-    - [ ] Log addToCart & removedFromCart from cloud function webhook
-    - [ ] Log purchases from checkout
+    - [x] Save reltionship between clientId and cartId to backend
+    - [x] Log addToCart & removedFromCart from cloud functions
+    - [x] Log purchases from checkout
     - [ ] Log remaining user events in theme
     - [ ] Train models after 7 days of data
     - [ ] Render recommendations in theme
