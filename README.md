@@ -72,7 +72,7 @@ firebase deploy --only functions
 ## Phase 1 - record user events on your shopify storefront
 
 - Go to store > themes > edit theme code
-- Paste our google analytics tracking code directly under the <head> tag in your theme.liquid file
+- Paste the following code directly under the <head> tag in your theme.liquid file
 
 ```html
 <!-- Google Analytics & uid tracking -->
@@ -84,6 +84,21 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 
 ga('create', '<GOOGLE ANALYTICS ID>', 'auto');
 ga('set', 'userId', '{{customer.id}}');
+</script>
+
+<!-- PERSONALIZATION - install Optimizely-->
+<script src="https://unpkg.com/@optimizely/optimizely-sdk@3.5/dist/optimizely.browser.umd.min.js"></script>
+<script src="https://cdn.optimizely.com/datafiles/UxFYZqB5NpjGBo6f84uCE.json/tag.js"></script>
+```
+
+- Paste the following code under the <body> tag in your theme.liquid
+
+```html
+<!-- PERSONALIZATION - instantiate optimizely -->
+<script>
+var optimizelyClientInstance = optimizelySdk.createInstance({
+    datafile: window.optimizelyDatafile,
+});
 </script>
 ```
 
@@ -159,8 +174,9 @@ ga('set', 'userId', '{{customer.id}}');
         - [x] remove-from-list (not available for Hexxee)
     - [x] Hide API key from browsers with restricted cloud function
 - [ ] Start AB test with client
-    - [ ] Toggle recommendations for users from two different experiments
-    - [ ] Denote 
+    - [x] Add optimizely to theme
+    - [ ] Save experimentId when logging user events
+    - [ ] Toggle recommendations based on variation
 - [ ] Hexxee phase 2
     - [ ] Ensure all user events are being collected
     - [ ] Train a model (2-5 days)
@@ -186,3 +202,4 @@ ga('set', 'userId', '{{customer.id}}');
 ## Thoughts
 
 - Clients are bad at even simple tasks like setting up a GCP account with billing
+- Some clients will have insufficient data to train models. Looks like Hexxee is on track to train *recommended for you* after 7 days.
