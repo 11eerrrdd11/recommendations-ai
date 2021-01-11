@@ -138,7 +138,7 @@ exports.orderPaid = functions.https.onRequest(async (request, response) => {
         return
     }
     catch(error){
-        console.log(error)
+        functions.logger.error(error)
         response.status(500).send(error)
         return
     }
