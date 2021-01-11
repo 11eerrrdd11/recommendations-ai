@@ -161,16 +161,11 @@ ga('set', 'userId', '{{customer.id}}');
 - [ ] Start AB test with client
     - [ ] Toggle recommendations for users from two different experiments
     - [ ] Denote 
-- [ ] Hexxee phase 1
-    - [x] Create recs API keys
-    - [ ] Deploy cloud functions
-    - [ ] Update client side function urls
-    - [ ] Update webhook urls
-    - [x] Secure webhook calls
-    - [x] Save relationship between clientId and cartId to backend
-    - [x] Log addToCart & removedFromCart from backend
-    - [x] Log purchases from backend
-    - [x] Log remaining user events from frontend
+- [ ] Hexxee phase 2
+    - [ ] Ensure all user events are being collected
+    - [ ] Train a model (2-5 days)
+    - [ ] Create an HTML product recommendations section
+    - [ ] 
 - [ ] Minimum public application requirements
     - [ ] When app installed, add client info to firestore
     - [ ] Move all client-side tracking code out of liquid files and into javascript functions
@@ -191,4 +186,3 @@ ga('set', 'userId', '{{customer.id}}');
 ## Thoughts
 
 - Clients are bad at even simple tasks like setting up a GCP account with billing
-
