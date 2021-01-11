@@ -9,13 +9,13 @@ const {updateProductCatalog} = require('./src/pubsub_triggers');
 admin.initializeApp(functions.config().firebase);
 
 module.exports = {
-    cartCreated, 
-    cartUpdated,
-    logCartEvents,
     updateProductCatalog,
+    cartCreated,
+    cartUpdated,
     saveClientId, 
-    getRecommendations, 
-    logUserEvent, 
+    logCartEvents,
     orderPaid, 
+    logUserEvent, 
+    // getRecommendations, // no need while collecting data
     // checkoutUpdated // not currently using checkoutId on backend
 };
