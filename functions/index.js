@@ -16,6 +16,6 @@ module.exports = {
     logCartEvents,
     orderPaid, 
     logUserEvent, 
-    // getRecommendations, // no need while collecting data
+    getRecommendations,
     // checkoutUpdated // not currently using checkoutId on backend
 };

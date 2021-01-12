@@ -44,15 +44,18 @@ exports.getUserFromCartAsync = async (cartId) => {
     } else {
         var clientId;
         var userId;
+        var experimentId;
         snapshot.forEach(doc => {
             clientId = doc.id;
-            userId = doc.userId;
+            var docData = doc.data();
+            userId = docData.userId;
+            experimentId = docData.experimentVariationId;
         });
         if (clientId === null){
             throw new Error(`Client Id is null`);
         }
-        functions.logger.log(`Retrieved clientId=${clientId} userId=${userId}`);
-        return [clientId, userId];
+        functions.logger.log(`Retrieved clientId=${clientId} userId=${userId} experimentId:${experimentId}`);
+        return [clientId, userId, experimentId];
     }
 }
 

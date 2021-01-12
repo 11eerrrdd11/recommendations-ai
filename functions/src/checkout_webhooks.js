@@ -19,7 +19,7 @@ exports.checkoutUpdated = functions.https.onRequest(async (request, response) =>
         functions.logger.log(`Checkout ${checkoutId} updated. CartId = ${cartId}`);
 
         // add the relationship between clientIds and checkouts to firestore
-        const [clientId, userId] = await getUserFromCartAsync(cartId);
+        const [clientId, userId, experimentId] = await getUserFromCartAsync(cartId);
         const docRef = admin.firestore().collection('clients').doc(clientId);
         await docRef.set({
             checkoutIds: admin.firestore.FieldValue.arrayUnion(checkoutId)

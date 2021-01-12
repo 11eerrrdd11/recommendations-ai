@@ -27,7 +27,7 @@ exports.logCartEvents = functions.firestore.document("carts/{cartId}").onWrite(a
                     return
                 }
 
-                [clientId, userId] = await getUserFromCartAsync(cartId);
+                [clientId, userId, experimentId] = await getUserFromCartAsync(cartId);
                 deletePromise = _deletePreviousCartsAsync(cartId, clientId);
                 userEvent = {
                     "userInfo": {
@@ -35,7 +35,7 @@ exports.logCartEvents = functions.firestore.document("carts/{cartId}").onWrite(a
                         "userId": `${userId}` // unique across device sessions
                     },
                     "eventDetail" : {
-                //     	"experimentIds": "321"
+                    	"experimentIds": experimentId
                     }
                 }
                 eventName = "add-to-cart";
@@ -60,7 +60,7 @@ exports.logCartEvents = functions.firestore.document("carts/{cartId}").onWrite(a
                     return
                 }
 
-                [clientId, userId] = await getUserFromCartAsync(cartId);
+                [clientId, userId, experimentId] = await getUserFromCartAsync(cartId);
                 deletePromise = _deletePreviousCartsAsync(cartId, clientId);
                 userEvent = {
                     "userInfo": {
@@ -68,7 +68,7 @@ exports.logCartEvents = functions.firestore.document("carts/{cartId}").onWrite(a
                         "userId": `${userId}` // unique across device sessions
                     },
                     "eventDetail" : {
-                //     	"experimentIds": "321"
+                    	"experimentIds": experimentId
                     }
                 }   
                 Object.assign(

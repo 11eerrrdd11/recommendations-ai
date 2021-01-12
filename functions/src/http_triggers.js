@@ -12,14 +12,15 @@ exports.saveClientId = functions.https.onRequest((request, response) => {
     // use cors to prevent requests from websites other than the client's shopify domain
     cors(request, response, async () => {
         try {
-            const { clientId, userId, cartId } = request.body;
-            functions.logger.log(`clientId:${clientId} userId:${userId} cartId:${cartId}`);
+            const { clientId, userId, cartId, experimentVariationId } = request.body;
+            functions.logger.log(`clientId:${clientId} userId:${userId} cartId:${cartId} experimentVariationId:${experimentVariationId}`);
 
             // add the relationship between clientIds and carts to firestore
             const docRef = admin.firestore().collection('clients').doc(clientId);
             await docRef.set({
                 userId: userId,
-                cartIds: admin.firestore.FieldValue.arrayUnion(cartId)
+                cartIds: admin.firestore.FieldValue.arrayUnion(cartId),
+                experimentVariationId: experimentVariationId,
             }, { merge: true});
 
             response.status(200).send({})
@@ -105,7 +106,7 @@ exports.orderPaid = functions.https.onRequest(async (request, response) => {
             response.status(200).send();
             return
         } 
-        const [clientId, userId] = await getUserFromCartAsync(cartId);
+        const [clientId, userId, experimentId] = await getUserFromCartAsync(cartId);
         functions.logger.log(`Order is for clientId=${clientId} & uid=${userId}`);
 
         // log the event to recommendations Ai
@@ -118,7 +119,7 @@ exports.orderPaid = functions.https.onRequest(async (request, response) => {
               "userId": `${userId}`, // unique across browser sessions
             },
             "eventDetail": {
-      //         "experimentIds": "321"
+              "experimentIds": experimentId
             },
             "productEventDetail": {
               "cartId" : `${cartId}`,
