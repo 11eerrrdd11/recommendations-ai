@@ -1,11 +1,9 @@
-console.log('loading recommendations AI events functions');
-
 // functions to log user behaviour to GCP recommendations AI
 async function logUserEvent(payload) {  
   
   // Add the optimizely variant ID to the payload      
   const clientId = payload.userInfo.visitorId;
-  const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `$clientId`);  
+  const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);  
   
   console.log(`OPTIMIZELY VARIATIONID=${experimentVariationId}`);
   Object.assign(payload, {'eventDetail': {'experimentIds': experimentVariationId, "recommendationToken": payload.eventDetail.recommendationToken,}})
@@ -339,6 +337,8 @@ function removeFromList(){
 function addToList(){
   console.log(`User added product to list`)
 }
+
+console.log('loaded recommendations AI events functions');
 
 function saveClientIdToFirestore(){
   console.log(`Saving clientId to firestore`)

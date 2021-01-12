@@ -5,6 +5,10 @@ const cors = require('cors')({origin: functions.config().shopify.url});
 const PROJECT_ID = process.env.GCLOUD_PROJECT;
 const fetch = require("node-fetch");
 const {webhookRequestFromShopify, getUserFromCartAsync, parseLineItems} = require('./helpers')
+const optimizely = require('@optimizely/optimizely-sdk');
+const optimizelyClientInstance = optimizely.createInstance({
+    sdkKey: functions.config().optimizely.sdk_key,
+});
 
 
 // Save which cart belongs to which user for use in cartUpdated webhook
@@ -63,6 +67,46 @@ exports.getRecommendations = functions.https.onRequest((request, response) => {
         }
     })
 });
+
+const logOptimizelyPurchaseEvent = async (amount, currency, visitorId) => {
+    functions.logger.log(`Logging optimizely order-paid event for user ${visitorId}: ${amount} ${currency}`);
+    return optimizelyClientInstance.onReady({ timeout: 15000 }).then(async (result) => {
+        if (result.success === false){
+            throw new Error(`Failed to instantiate optimizely client: ${result.reason}`);
+        }
+        const floatAmount = parseFloat(amount);
+        functions.logger.log(`Float amount=${floatAmount}`);
+
+        // convert amount into cents
+        const exchangeResult = await fetch('https://api.exchangeratesapi.io/latest?base=USD', { 
+            method: 'GET',
+        });
+        const status = exchangeResult.status;
+        functions.logger.log(`Call to exchange rates API returned status ${status}`);
+        if (status !== 200){
+            throw new Error(`Failed to retrieve exchange rates`);
+        }
+        const data = await exchangeResult.json()
+        functions.logger.log(`Exhcange rates=${JSON.stringify(data)}`);
+        const exchangeRate = data.rates[currency];
+        functions.logger.log(`Exhcange rate=${exchangeRate}`);
+        const amountInDollars = floatAmount / exchangeRate;
+        if (amountInDollars === null){
+            throw new Error(`Failed to convert ${amount} ${currency} into dollars.`);
+        }
+        functions.logger.log(`Amount in dollars = ${amountInDollars}`);
+        const amountInCents = amountInDollars * 100;
+
+        const attributes = {};
+        const tags = {
+            revenue: amountInCents
+        };
+        functions.logger.log(`${amount} ${currency} = ${amountInCents} cents`);
+        functions.logger.log(`Logging order-paid to optimizely with tags: ${JSON.stringify(tags)}`);
+        await optimizelyClientInstance.track("order-paid", visitorId, attributes, tags);
+        return;
+      });
+}
 
 exports.logUserEvent = functions.https.onRequest((request, response) => {
     // use cors to prevent requests from websites other than the client's shopify domain
@@ -134,7 +178,9 @@ exports.orderPaid = functions.https.onRequest(async (request, response) => {
             },
             "eventTime": order.updated_at,
         }
-        await logUserEventAsync(userEvent);
+        const recsEventPromise = logUserEventAsync(userEvent);
+        const optimizelyEventPromise = logOptimizelyPurchaseEvent(order.total_price, order.currency, `${clientId}`);
+        await Promise.all([recsEventPromise, optimizelyEventPromise]);
         response.status(200).send()
         return
     }

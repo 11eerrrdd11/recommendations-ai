@@ -50,12 +50,13 @@ export SHOPIFY_API_KEY=<your private app api key>
 export SHOPIFY_APP_PASSWORD=<your private app password>
 export SHOPIFY_CURRENCY_CODE=<currency code for products in shopify admin console>
 export SHOPIFY_WEBHOOK_SECRET=<from settings > notifications > webhooks>
+export OPTIMIZELY_SDK_KEY=<your optimizely sdk key>
 ```
 
 - Configure firebase
 
 ```bash
-firebase functions:config:set shopify.webhook_secret=${SHOPIFY_WEBHOOK_SECRET} shopify.currency_code=${SHOPIFY_CURRENCY_CODE} shopify.url=${SHOPIFY_URL} shopify.shop_name=${SHOPIFY_SHOP_NAME} shopify.api_key=${SHOPIFY_API_KEY} shopify.password=${SHOPIFY_APP_PASSWORD} recs.event_key=${RECS_EVENT_KEY} recs.predict_key=${RECS_PREDICT_KEY}
+firebase functions:config:set shopify.webhook_secret=${SHOPIFY_WEBHOOK_SECRET} shopify.currency_code=${SHOPIFY_CURRENCY_CODE} shopify.url=${SHOPIFY_URL} shopify.shop_name=${SHOPIFY_SHOP_NAME} shopify.api_key=${SHOPIFY_API_KEY} shopify.password=${SHOPIFY_APP_PASSWORD} recs.event_key=${RECS_EVENT_KEY} recs.predict_key=${RECS_PREDICT_KEY} optimizely.sdk_key=${OPTIMIZELY_SDK_KEY}
 
 firebase functions:config:get > ./functions/.runtimeconfig.json
 ```
@@ -126,6 +127,12 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
 
 ## ToDo
 
+- [ ] Start AB test with client
+    - [x] Add optimizely to theme
+    - [x] Save experimentId when logging all user events (front/backend)
+    - [x] Toggle recommendations based on optimizely variation
+    - [ ] Track % change to revenue per visitor for with/without recommendations
+        - [ ] Track order-paid optimizely events in cents
 - [ ] Sync catalog
     - [x] Schedule product catalog updates with cloud function
     - [x] Add required catalog fields
@@ -173,16 +180,10 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
         - [x] add-to-list (not available for Hexxee)
         - [x] remove-from-list (not available for Hexxee)
     - [x] Hide API key from browsers with restricted cloud function
-- [ ] Start AB test with client
-    - [x] Add optimizely to theme
-    - [x] Save experimentId when logging all user events (front/backend)
-    - [x] Toggle recommendations based on variation
 - [ ] Hexxee phase 2
-    - [ ] Ensure >90% of user events are being collected
     - [ ] Create recommended for you section
     - [ ] Create others you may like section
     - [ ] Create frequently bought together section
-    - [ ] OK sections with Hexxe team
     - [ ] Train all 3 model types
     - [ ] Render recommendations in 3 places in theme
     - [ ] Toggle UI depending on optimizely experiment
