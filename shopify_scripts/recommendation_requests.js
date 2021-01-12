@@ -1,4 +1,4 @@
-console.log('loading recommendations AI requests functions');
+console.log('loaded recommendations AI requests functions');
 
 async function requestRecommendationsAsync(payload) {
   const placement = 'recently_viewed_default';

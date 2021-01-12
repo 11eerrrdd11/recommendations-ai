@@ -383,7 +383,7 @@ async function saveClientCartRelationship(){
       // Save private attribute to cart to fix cart ID
       const clientId = tracker.get('clientId');
       const customerId = tracker.get('userId');
-      const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `$clientId`);
+      const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);
       const payload = {
         __clientId: `${clientId}`
       }

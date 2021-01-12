@@ -127,12 +127,18 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
 
 ## ToDo
 
+- [ ] Hexxee phase 2
+    - [ ] Create recommended for you section
+    - [ ] Create others you may like section
+    - [ ] Create frequently bought together section
+    - [ ] Train all 3 model types
+    - [ ] Render recommendations in theme
+    - [ ] Start optimizely AB test
 - [ ] Start AB test with client
     - [x] Add optimizely to theme
     - [x] Save experimentId when logging all user events (front/backend)
     - [x] Toggle recommendations based on optimizely variation
-    - [ ] Track % change to revenue per visitor for with/without recommendations
-        - [ ] Track order-paid optimizely events in cents
+    - [x] Track % change to revenue per visitor for with/without recommendations
 - [ ] Sync catalog
     - [x] Schedule product catalog updates with cloud function
     - [x] Add required catalog fields
@@ -180,13 +186,6 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
         - [x] add-to-list (not available for Hexxee)
         - [x] remove-from-list (not available for Hexxee)
     - [x] Hide API key from browsers with restricted cloud function
-- [ ] Hexxee phase 2
-    - [ ] Create recommended for you section
-    - [ ] Create others you may like section
-    - [ ] Create frequently bought together section
-    - [ ] Train all 3 model types
-    - [ ] Render recommendations in 3 places in theme
-    - [ ] Toggle UI depending on optimizely experiment
 - [ ] Minimum public application requirements
     - [ ] When app installed, add client info to firestore
     - [ ] Move all client-side tracking code out of liquid files and into javascript functions
