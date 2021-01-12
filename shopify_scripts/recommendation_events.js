@@ -1,5 +1,17 @@
+console.log('loading recommendations AI events functions');
+
 // functions to log user behaviour to GCP recommendations AI
-async function logUserEvent(payload) {
+async function logUserEvent(payload) {  
+  
+  // Add the optimizely variant ID to the payload      
+  const clientId = payload.userInfo.visitorId;
+  const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `$clientId`);  
+  
+  console.log(`OPTIMIZELY VARIATIONID=${experimentVariationId}`);
+  Object.assign(payload, {'eventDetail': {'experimentIds': experimentVariationId, "recommendationToken": payload.eventDetail.recommendationToken,}})
+  console.log(payload);
+  
+  // Log the event
   const url = `https://us-central1-recommendations-ai-1234.cloudfunctions.net/logUserEvent`
   console.log(JSON.stringify(payload));
   const response = await fetch(url, { 
@@ -36,52 +48,6 @@ async function getCartAsync(){
 ///////////////////////////////
 // required for live experiment
 ///////////////////////////////
-function clickedAddToCart(product_json){
-  console.log(`User added product to cart`)
-  
-  ga(async function(tracker) {
-    var clientId = tracker.get('clientId');
-    var customerId = tracker.get('userId');
-    console.log(`client id = ${clientId}`);
-    console.log(`customerId = ${customerId}`);
-    var attributionToken = getParameterByName('recToken');
-    console.log(`attribution token = ${attributionToken}`);
-    
-    const response = await fetch('/cart.js', {method: 'GET'})
-    const json = await response.json();
-    const currencyCode = json.currency;
-    const items = json.items;
-    const cartId = json.token;
-    
-    var productDetails = [
-      {
-        id: `${product_json.product_id }`,
-        currencyCode: currencyCode,
-        originalPrice: product_json.price / 100,
-        displayPrice: product_json.price / 100,
-        quantity: 1
-      }
-    ];
-    console.log(productDetails);
-    
-    var user_event = {
-      "eventType": "add-to-cart",
-      "userInfo": {
-        "visitorId": `${clientId}`, // unique across browser sessions
-        "userId": `${customerId}` // unique across device sessions
-      },
-      "eventDetail" : {
-        "recommendationToken": `${attributionToken}`
-//     	"experimentIds": "321"
-      },
-      "productEventDetail": {
-        "cartId" : `${cartId}`,
-        "productDetails": productDetails
-      }
-    }
-    logUserEvent(user_event);
-  });
-};
 
 function detailPageView(product, attributionToken){
   console.log(`User viewed product detail page`);
@@ -228,7 +194,7 @@ function checkoutStart(){
   });
 }
 
-function categoryPageView(collectionTags){
+function categoryPageView(collectionTags, collectionId){
   console.log(`User viewed category page`)
   
   ga(async function(tracker) {
@@ -251,112 +217,6 @@ function categoryPageView(collectionTags){
           {"categories": collectionTags}
         ]
       },
-    }
-    logUserEvent(user_event);
-  });
-}
-
-function removedProductDifference(prevCartItems, nextCartItems){
-  // an item was removed from cart (all quantities)
-  const nextCartItemIds = nextCartItems.map(item => item.id);
-  return prevCartItems.filter(item => {
-    return nextCartItemIds.indexOf(item.id) < 0;
-  });
-}
-
-function clickedRemoveFromCart(removeIndex){
-  console.log(`User removed product from cart`)
-//   console.log(previousCart);
-//   console.log(newCart);
-  
-  ga(async function(tracker) {
-    var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
-    var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
-    
-    const cart = await getCartAsync();
-    const currencyCode = cart.currency;
-    const cartId = cart.token;
-    const removedItems = [cart.items[parseInt(removeIndex)-1]];
-    
-    const productDetails = [];
-    removedItems.forEach(function(item){
-      productDetails.push({
-        id: `${item.product_id }`,
-        currencyCode: currencyCode,
-        originalPrice: item.price / 100,
-        displayPrice: item.price / 100,
-        quantity: item.quantity
-      });
-    });
-    console.log(productDetails);
-    
-    var user_event = {
-      "eventType": "remove-from-cart",
-      "userInfo": {
-        "visitorId": `${clientId}`, // unique across browser sessions
-        "userId": `${customerId}` // unique across device sessions
-      },
-      "eventDetail" : {
-//     	"experimentIds": "321"
-      },
-      "productEventDetail": {
-        "cartId" : `${cartId}`,
-        "productDetails": productDetails
-      }
-    }
-    logUserEvent(user_event);
-  });
-}
-
-function cartQuantityChanged(index, quantity){
-  console.log(`User change quantity in cart`)
-//   console.log(previousCart);
-//   console.log(newCart);
-  
-  ga(async function(tracker) {
-    var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
-    var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
-    
-    const cart = await getCartAsync();
-    const currencyCode = cart.currency;
-    const cartId = cart.token;
-    const changedItems = [cart.items[parseInt(index)-1]];
-    const oldItemQuantity = changedItems[0].quantity;
-    var eventName;
-    if (oldItemQuantity < quantity){
-    	eventName = "add-to-cart";
-    } else {
-    	eventName = "remove-from-cart";
-    }
-    const productDetails = [];
-    changedItems.forEach(function(item){
-      productDetails.push({
-        id: `${item.product_id }`,
-        currencyCode: currencyCode,
-        originalPrice: item.price / 100,
-        displayPrice: item.price / 100,
-        quantity: 1
-      });
-    });
-    console.log(productDetails);
-    
-    var user_event = {
-      "eventType": eventName,
-      "userInfo": {
-        "visitorId": `${clientId}`, // unique across browser sessions
-        "userId": `${customerId}` // unique across device sessions
-      },
-      "eventDetail" : {
-//     	"experimentIds": "321"
-      },
-      "productEventDetail": {
-        "cartId" : `${cartId}`,
-        "productDetails": productDetails
-      }
     }
     logUserEvent(user_event);
   });
@@ -446,6 +306,9 @@ function pageVisit(){
     var customerId = tracker.get('userId');
     console.log(`customer id = ${customerId}`);
     
+    // Get all products on this page
+    
+    
     var user_event = {
       "eventType": "page-visit",
       "userInfo": {
@@ -477,4 +340,86 @@ function addToList(){
   console.log(`User added product to list`)
 }
 
-console.log('loaded recommendations AI events functions');
+function saveClientIdToFirestore(){
+  console.log(`Saving clientId to firestore`)
+  
+  ga(async function(tracker) {
+    var clientId = tracker.get('clientId');
+    console.log(`client id = ${clientId}`);
+    var customerId = tracker.get('userId');
+    console.log(`customer id = ${customerId}`);
+    
+    const response = await fetch('/cart.js', {method: 'GET'})
+    const json = await response.json();
+    const cartId = json.token;
+    const payload = {
+      clientId: clientId,
+      userId: customerId,
+      cartId: cartId,
+    }
+    
+    // save data to firestore with cloud function
+    const url = `https://us-central1-recommendations-ai-1234.cloudfunctions.net/saveClientId`
+    const resp = await fetch(url, { 
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    console.log(data);
+  });
+}
+
+
+async function saveClientCartRelationship(){
+  console.log(`adding client id to cart as private attribute`);
+  ga(async function(tracker) {
+    try {
+      
+      // Save private attribute to cart to fix cart ID
+      const clientId = tracker.get('clientId');
+      const customerId = tracker.get('userId');
+      const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `$clientId`);
+      const payload = {
+        __clientId: `${clientId}`
+      }
+      const resp = await fetch('/cart/update.js', { 
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      const cart_json = await resp.json();
+      const cartId = cart_json.token;
+      
+      // save data to firestore with cloud function
+      const firestorePayload = {
+        clientId: clientId,
+        userId: customerId,
+        cartId: cartId,
+        experimentVariationId: experimentVariationId,
+      }
+      const url = `https://us-central1-recommendations-ai-1234.cloudfunctions.net/saveClientId`
+      const serverResponse = await fetch(url, { 
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(firestorePayload)
+      });
+      const data = await serverResponse.json();
+      console.log(data);
+      
+    } catch (e){
+    	console.error(e);
+    }
+  });
+}

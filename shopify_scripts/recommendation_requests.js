@@ -1,4 +1,4 @@
-console.log('loaded recommendations AI requests functions');
+console.log('loading recommendations AI requests functions');
 
 async function requestRecommendationsAsync(payload) {
   const placement = 'recently_viewed_default';
@@ -25,14 +25,28 @@ function getRecentlyViewedProducts(customerId, product){
   console.log(`User requested most recently viewed products`);
   
   ga(async function(tracker) {
+    
     var clientId = tracker.get('clientId');
+    var enabled = optimizelyClientInstance.isFeatureEnabled('recommended_products', `${clientId}`);
+	var show_recs = optimizelyClientInstance.getFeatureVariableBoolean('recommended_products', 'show_recs', `${clientId}`);
+    var variation_id = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);
+    console.log(`OPTIMIZELY: EXPERIMENT ENABLED=${enabled} SHOW RECS=${show_recs} VARIATION ID=${variation_id}`); 
+    
+    var recentlyViewed = document.querySelector(".recently-viewed-recommendations");
+    if (show_recs === false){
+      	console.log(`Recommendations not enabled for this experiment. Returning without requesting recs.`);
+      	recentlyViewed.style.display = "none";
+      	return
+    }
+    recentlyViewed.style.display = "block";
+ 
     var filterString = "";
    	var dryRun = true;
     var contextEventType = "detail-page-view";
     
     console.log(`customer id = ${customerId}`);
     console.log(`client id = ${clientId}`);
-    
+    const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);  
     var payload = {
 //       "filter": filterString,
       "dryRun": dryRun,
@@ -45,7 +59,7 @@ function getRecentlyViewedProducts(customerId, product){
 //           "userAgent": "user-agent"
         },
         "eventDetail": {
-//           "experimentIds": "experiment-group"
+          "experimentIds": experimentVariationId
         },
         "productEventDetail": {
           "productDetails": [
@@ -63,12 +77,11 @@ function getRecentlyViewedProducts(customerId, product){
     var productIds = result.results.slice(1, 3); // TODO
     console.log(recommendationToken);
     console.log(productIds);
-    var recentlyViewed = document.querySelector(".recently-viewed-recommendations");
     var newInnerHTMLPromises = productIds.map(function(product) { 
         return renderProductAsync(product.id, recommendationToken);
     })
     var listItems = (await Promise.all(newInnerHTMLPromises)).join(" ");
-//     recentlyViewed.innerHTML = `<ul>${listItems}</ul>`   
+    recentlyViewed.innerHTML = `<ul>${listItems}</ul>`   
   });
 }
 
