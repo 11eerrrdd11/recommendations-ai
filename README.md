@@ -177,11 +177,15 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
     - [x] Add optimizely to theme
     - [ ] Save experimentId when logging user events
     - [ ] Toggle recommendations based on variation
+    - [ ] Save experimentId to client firestore document
 - [ ] Hexxee phase 2
     - [ ] Ensure all user events are being collected
-    - [ ] Train a model (2-5 days)
-    - [ ] Create an HTML product recommendations section
-    - [ ] 
+    - [ ] Create recommended for you section
+    - [ ] Create others you may like section
+    - [ ] Create frequently bought together section
+    - [ ] OK sections with Hexxe team
+    - [ ] Train a model
+    - [ ] Start an AB test
 - [ ] Minimum public application requirements
     - [ ] When app installed, add client info to firestore
     - [ ] Move all client-side tracking code out of liquid files and into javascript functions

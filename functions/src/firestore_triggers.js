@@ -10,65 +10,80 @@ exports.logCartEvents = functions.firestore.document("carts/{cartId}").onWrite(a
             functions.logger.log(`Cart ${cartId} deleted`);
             return;
         } else {
-            const [clientId, userId] = await getUserFromCartAsync(cartId);
             const newCart = change.after.data();
-            const userEvent = {
-                "userInfo": {
-                    "visitorId": `${clientId}`, // unique across browser sessions
-                    "userId": `${userId}` // unique across device sessions
-                },
-                "eventDetail" : {
-            //     	"experimentIds": "321"
-                }
-            }
             var eventName;
             var productDetails;
+            var clientId;
+            var userId;
+            var userEvent;
+            var deletePromise;
     
             if (!change.before.exists) {
-                functions.logger.log(`Cart ${cartId} created`);      
+                functions.logger.log(`Cart ${cartId} created`);
                 
-                // delete their previous carts
-                const deletePromise = _deletePreviousCartsAsync(cartId, clientId);
-                await deletePromise;
-                
-                eventName = "add-to-cart";
                 productDetails = parseLineItems(newCart.line_items);
                 if (productDetails.length < 1){
-                    return; // add to cart event needs products
-                } else {
-                    Object.assign(
-                        userEvent,
-                        {
-                            "eventType": eventName,
-                            "productEventDetail": {
-                                "cartId" : `${cartId}`,
-                                "productDetails": productDetails
-                            },
-                            "eventTime": newCart.created_at,
-                        }
-                    );
+                    functions.logger.log(`Created cart has no items.`);
+                    return
                 }
+
+                [clientId, userId] = await getUserFromCartAsync(cartId);
+                deletePromise = _deletePreviousCartsAsync(cartId, clientId);
+                userEvent = {
+                    "userInfo": {
+                        "visitorId": `${clientId}`, // unique across browser sessions
+                        "userId": `${userId}` // unique across device sessions
+                    },
+                    "eventDetail" : {
+                //     	"experimentIds": "321"
+                    }
+                }
+                eventName = "add-to-cart";
+                Object.assign(
+                    userEvent,
+                    {
+                        "eventType": eventName,
+                        "productEventDetail": {
+                            "cartId" : `${cartId}`,
+                            "productDetails": productDetails
+                        },
+                        "eventTime": newCart.created_at,
+                    }
+                );
             } else {
-                functions.logger.log(`Cart ${cartId} updated`);    
+                functions.logger.log(`Cart ${cartId} updated`); 
+
                 const previousCart = change.before.data();
                 [eventName, productDetails] = _compareCarts(previousCart, newCart);
                 if (productDetails.length < 1){
-                    return; // add to cart event needs products
-                } else {
-                    Object.assign(
-                        userEvent,
-                        {
-                            "eventType": eventName,
-                            "productEventDetail": {
-                                "cartId" : `${cartId}`,
-                                "productDetails": productDetails
-                            },
-                            "eventTime": newCart.updated_at,
-                        }
-                    );
+                    functions.logger.log(`Updated cart has no variant changes.`);
+                    return
                 }
+
+                [clientId, userId] = await getUserFromCartAsync(cartId);
+                deletePromise = _deletePreviousCartsAsync(cartId, clientId);
+                userEvent = {
+                    "userInfo": {
+                        "visitorId": `${clientId}`, // unique across browser sessions
+                        "userId": `${userId}` // unique across device sessions
+                    },
+                    "eventDetail" : {
+                //     	"experimentIds": "321"
+                    }
+                }   
+                Object.assign(
+                    userEvent,
+                    {
+                        "eventType": eventName,
+                        "productEventDetail": {
+                            "cartId" : `${cartId}`,
+                            "productDetails": productDetails
+                        },
+                        "eventTime": newCart.updated_at,
+                    }
+                );
             }
-            await logUserEventAsync(userEvent);
+            await Promise.all([logUserEventAsync(userEvent), deletePromise]);
             return;
         }
     } catch (e){
