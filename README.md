@@ -130,17 +130,16 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
 I need to load `row, col, text-center text-uppercase, d-none, d-block, container-fluid, flex-row, flex-nowrap, img-fluid` from bootstrap.
 
 - [ ] Hexxee phase 2
-    - [ ] Create recommendations carousel
-    - [ ] Create shopping cart recommendations widget (needs lots of purchases before useful)
-    - [ ] Train all 3 model types
-    - [ ] Render recommendations in theme
+    - [ ] Render homepage and PDP page carousels in theme
+    - [ ] OK theme with Hexxee team
+    - [ ] Train *recommended for you* and *others you may like*
     - [ ] Start optimizely AB test
 - [ ] Display recommendations
-    - [x] bootstrap layout for all screen sizes
-    - [x] touch scrolling
-    - [x] carousel
-    - [x] format fonts like Hexxee theme
-    - [ ] render from a list of products with links
+    - [x] mobile layout and controls
+    - [x] desktop layout and controls
+    - [x] css to match Hexxee theme
+    - [x] render products from javascript
+    - [ ] handle case where no recs are returned
 - [ ] Start AB test with client
     - [x] Add optimizely to theme
     - [x] Save experimentId when logging all user events (front/backend)
