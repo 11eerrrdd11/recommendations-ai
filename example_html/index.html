@@ -26,198 +26,201 @@
     <body>
 
         <div class="container-fluid" style="height:140px; background:white;"></div>
-        <div class="container-fluid" style="height:15px;"></div>
 
-        <!-- RECOMMENDATIONS TEMPLATE -->
-        <!-- divider for start of section -->
-        <hr></hr>
-        <div class="pre-title-div"></div>
-        <div class="row">
-            <div class="col-1"></div>
-            <div class="col-12">
-                <p class="recs-title text-center text-uppercase">You may also like</pp>
-            </div>
-            <div class="col-1"></div>
-        </div>
-        <div class="post-title-div"></div>
-
-        <!-- For touch devices show a horizontally scrolling carousel -->
-        <div class="d-lg-none scrolling-wrapper container-fluid">    
-            <div class="row flex-row flex-nowrap">
-        
-                <div class="cardy col-2 col-sm-2 col-md-3 d-lg-none"></div>
-                <div class="cardy col-lg-2 col-xl-1 d-none d-lg-block"></div>
+        <div class="gcp-recommendations-section">
     
-                <div class="cardy col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
-                    <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
-                    <div class="post-image-div"></div>
-                    <p class="product-title text-center text-uppercase">unicorn universe</p>
-                    <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+            <!-- RECOMMENDATIONS TEMPLATE -->
+            <!-- divider for start of section -->
+            <hr style="padding: 0px; margin: 0px;"></hr>
+            <div class="pre-title-div"></div>
+            <div class="row">
+                <div class="col-1"></div>
+                <div class="col-12">
+                    <p class="recs-title text-center text-uppercase">You may also like</pp>
                 </div>
-                <div class="cardy col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
-                    <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
-                    <div class="post-image-div"></div>
-                    <p class="product-title text-center text-uppercase">unicorn universe</p>
-                    <p class="product-price text-center text-uppercase">$21.00 CAD</p>
-                </div>
-                <div class="cardy col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
-                    <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
-                </div>
-                <div class="cardy col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
-                    <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
-                </div>
-                <div class="cardy col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
-                    <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
-                </div>
-                <div class="cardy col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
-                    <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
-                </div>
-                
-                <div class="cardy col-2 col-sm-2 col-md-3 d-lg-none"></div>
-                <div class="cardy col-lg-2 col-xl-1 d-none d-lg-block"></div>
+                <div class="col-1"></div>
             </div>
-            <div class="post-carousel-div"></div>
-
-        </div>
-
-        <!-- For desktop devices show a carousel that clicks to animate -->
-        <div class="d-none d-lg-block container-fluid">
-            <div class="row align-items-center">
-                
-                <div id="goToPrevSlideContainer" class="col-1 text-center">
-
-                    <button id="goToPrevSlide" class="mdc-fab mdc-fab--mini" aria-label="Favorite">
-                        <div class="mdc-fab__ripple"></div>
-                        
-                        <span class="mdc-fab__icon material-icons">
-                            <img src="./images/chevron-back-outline.svg" alt="back arrow" class="img-fluid"></img>
-                        </span>
-                    </button>
-
-                    <!-- <button class="mdc-icon-button material-icons left-button">favorite</button> -->
-                </div>
-
-                <div class="col-10">
-                    <ul id="lightSlider" class="d-none d-lg-block">
-                        
-                        <li>
-                            <a href="http://example.com" style="text-decoration: none; color:black">
-                                <div class="">
-                                    <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
-                                    <div class="post-image-div"></div>
-                                    <p class="product-title text-center text-uppercase">unicorn universe</p>
-                                    <p class="product-price text-center text-uppercase">$21.00 CAD</p>
-                                </div>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="http://example.com" style="text-decoration: none; color:black">
-                                <div class="">
-                                    <image src="./images/hexxee_original.jpg" class="img-fluid"></image>
-                                    <div class="post-image-div"></div>
-                                    <p class="product-title text-center text-uppercase">unicorn universe</p>
-                                    <p class="product-price text-center text-uppercase">$21.00 CAD</p>
-                                </div>
-                            </a>
-                        </li>
-                        
-                        <li>
-                            <a href="http://example.com" style="text-decoration: none; color:black">
-                                <div class="">
-                                    <image src="./images/peanut_socks.jpg" class="img-fluid"></image>
-                                    <div class="post-image-div"></div>
-                                    <p class="product-title text-center text-uppercase">unicorn universe</p>
-                                    <p class="product-price text-center text-uppercase">$21.00 CAD</p>
-                                </div>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="http://example.com" style="text-decoration: none; color:black">
-                                <div class="">
-                                    <image src="./images/zera_print.jpg" class="img-fluid"></image>
-                                    <div class="post-image-div"></div>
-                                    <p class="product-title text-center text-uppercase">unicorn universe</p>
-                                    <p class="product-price text-center text-uppercase">$21.00 CAD</p>
-                                </div>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="http://example.com" style="text-decoration: none; color:black">
-                                <div class="">
-                                    <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
-                                    <div class="post-image-div"></div>
-                                    <p class="product-title text-center text-uppercase">unicorn universe</p>
-                                    <p class="product-price text-center text-uppercase">$21.00 CAD</p>
-                                </div>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="http://example.com" style="text-decoration: none; color:black">
-                                <div class="">
-                                    <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
-                                    <div class="post-image-div"></div>
-                                    <p class="product-title text-center text-uppercase">unicorn universe</p>
-                                    <p class="product-price text-center text-uppercase">$21.00 CAD</p>
-                                </div>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="http://example.com" style="text-decoration: none; color:black">
-                                <div class="">
-                                    <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
-                                    <div class="post-image-div"></div>
-                                    <p class="product-title text-center text-uppercase">unicorn universe</p>
-                                    <p class="product-price text-center text-uppercase">$21.00 CAD</p>
-                                </div>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="http://example.com" style="text-decoration: none; color:black">
-                                <div class="">
-                                    <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
-                                    <div class="post-image-div"></div>
-                                    <p class="product-title text-center text-uppercase">unicorn universe</p>
-                                    <p class="product-price text-center text-uppercase">$21.00 CAD</p>
-                                </div>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="http://example.com" style="text-decoration: none; color:black">
-                                <div class="">
-                                    <image src="./images/peanut_socks.jpg" class="img-fluid"></image>
-                                    <div class="post-image-div"></div>
-                                    <p class="product-title text-center text-uppercase">unicorn universe</p>
-                                    <p class="product-price text-center text-uppercase">$21.00 CAD</p>
-                                </div>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div id="goToNextSlideContainer" class="col-1 text-center">
-                    
-                    <button id="goToNextSlide" class="mdc-fab mdc-fab--mini" aria-label="Favorite">
-                        <div class="mdc-fab__ripple"></div>
-                        <span class="mdc-fab__icon material-icons">
-                            <img src="./images/chevron-forward-outline.svg" alt="back arrow" class="img-fluid"></img>
-                        </span>
-                    </button>
-
-                </div>
-            </div>
-        </div>
+            <div class="post-title-div"></div>
+    
+            <!-- For touch devices show a horizontally scrolling carousel -->
+            <div class="d-lg-none recs-scrolling-wrapper container-fluid">    
+                <div class="row flex-row flex-nowrap">
+            
+                    <div class="recs-product-sect col-2 col-sm-2 col-md-3 d-lg-none"></div>
+                    <div class="recs-product-sect col-lg-2 col-xl-1 d-none d-lg-block"></div>
         
-        <hr></hr>
-        <!-- divider for end of section -->
+                    <div class="recs-product-sect col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
+                        <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
+                        <div class="post-image-div"></div>
+                        <p class="product-title text-center text-uppercase">unicorn universe</p>
+                        <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+                    </div>
+                    <div class="recs-product-sect col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
+                        <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
+                        <div class="post-image-div"></div>
+                        <p class="product-title text-center text-uppercase">unicorn universe</p>
+                        <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+                    </div>
+                    <div class="recs-product-sect col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
+                        <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
+                    </div>
+                    <div class="recs-product-sect col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
+                        <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
+                    </div>
+                    <div class="recs-product-sect col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
+                        <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
+                    </div>
+                    <div class="recs-product-sect col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">
+                        <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
+                    </div>
+                    
+                    <div class="recs-product-sect col-2 col-sm-2 col-md-3 d-lg-none"></div>
+                    <div class="recs-product-sect col-lg-2 col-xl-1 d-none d-lg-block"></div>
+                </div>
+                <div class="post-carousel-div"></div>
+    
+            </div>
+    
+            <!-- For desktop devices show a carousel that clicks to animate -->
+            <div class="d-none d-lg-block container-fluid">
+                <div class="row align-items-center">
+                    
+                    <div id="goToPrevSlideContainer" class="col-1 text-center">
+    
+                        <button id="goToPrevSlide" class="mdc-fab mdc-fab--mini" aria-label="Favorite">
+                            <div class="mdc-fab__ripple"></div>
+                            
+                            <span class="mdc-fab__icon material-icons">
+                                <img src="./images/chevron-back-outline.svg" alt="back arrow" class="img-fluid"></img>
+                            </span>
+                        </button>
+    
+                        <!-- <button class="mdc-icon-button material-icons left-button">favorite</button> -->
+                    </div>
+    
+                    <div class="col-10">
+                        <ul id="lightSlider" class="d-none d-lg-block">
+                            
+                            <li>
+                                <a href="http://example.com" style="text-decoration: none; color:black">
+                                    <div class="">
+                                        <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
+                                        <div class="post-image-div"></div>
+                                        <p class="product-title text-center text-uppercase">unicorn universe</p>
+                                        <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+                                    </div>
+                                </a>
+                            </li>
+    
+                            <li>
+                                <a href="http://example.com" style="text-decoration: none; color:black">
+                                    <div class="">
+                                        <image src="./images/hexxee_original.jpg" class="img-fluid"></image>
+                                        <div class="post-image-div"></div>
+                                        <p class="product-title text-center text-uppercase">unicorn universe</p>
+                                        <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+                                    </div>
+                                </a>
+                            </li>
+                            
+                            <li>
+                                <a href="http://example.com" style="text-decoration: none; color:black">
+                                    <div class="">
+                                        <image src="./images/peanut_socks.jpg" class="img-fluid"></image>
+                                        <div class="post-image-div"></div>
+                                        <p class="product-title text-center text-uppercase">unicorn universe</p>
+                                        <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+                                    </div>
+                                </a>
+                            </li>
+    
+                            <li>
+                                <a href="http://example.com" style="text-decoration: none; color:black">
+                                    <div class="">
+                                        <image src="./images/zera_print.jpg" class="img-fluid"></image>
+                                        <div class="post-image-div"></div>
+                                        <p class="product-title text-center text-uppercase">unicorn universe</p>
+                                        <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+                                    </div>
+                                </a>
+                            </li>
+    
+                            <li>
+                                <a href="http://example.com" style="text-decoration: none; color:black">
+                                    <div class="">
+                                        <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
+                                        <div class="post-image-div"></div>
+                                        <p class="product-title text-center text-uppercase">unicorn universe</p>
+                                        <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+                                    </div>
+                                </a>
+                            </li>
+    
+                            <li>
+                                <a href="http://example.com" style="text-decoration: none; color:black">
+                                    <div class="">
+                                        <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
+                                        <div class="post-image-div"></div>
+                                        <p class="product-title text-center text-uppercase">unicorn universe</p>
+                                        <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+                                    </div>
+                                </a>
+                            </li>
+    
+                            <li>
+                                <a href="http://example.com" style="text-decoration: none; color:black">
+                                    <div class="">
+                                        <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
+                                        <div class="post-image-div"></div>
+                                        <p class="product-title text-center text-uppercase">unicorn universe</p>
+                                        <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+                                    </div>
+                                </a>
+                            </li>
+    
+                            <li>
+                                <a href="http://example.com" style="text-decoration: none; color:black">
+                                    <div class="">
+                                        <image src="./images/Baby_Pink_Blue.jpg" class="img-fluid"></image>
+                                        <div class="post-image-div"></div>
+                                        <p class="product-title text-center text-uppercase">unicorn universe</p>
+                                        <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+                                    </div>
+                                </a>
+                            </li>
+    
+                            <li>
+                                <a href="http://example.com" style="text-decoration: none; color:black">
+                                    <div class="">
+                                        <image src="./images/peanut_socks.jpg" class="img-fluid"></image>
+                                        <div class="post-image-div"></div>
+                                        <p class="product-title text-center text-uppercase">unicorn universe</p>
+                                        <p class="product-price text-center text-uppercase">$21.00 CAD</p>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="goToNextSlideContainer" class="col-1 text-center">
+                        
+                        <button id="goToNextSlide" class="mdc-fab mdc-fab--mini" aria-label="Favorite">
+                            <div class="mdc-fab__ripple"></div>
+                            <span class="mdc-fab__icon material-icons">
+                                <img src="./images/chevron-forward-outline.svg" alt="back arrow" class="img-fluid"></img>
+                            </span>
+                        </button>
+    
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="padding: 0px; margin: 0px;"></hr>
+            <!-- divider for end of section -->
+        </div>
 
-        <div class="container-fluid" style="height:15px;"></div>
-        <div class="container-fluid" style="height:140px; background:white;"></div>
+        <div class="container-fluid" style="height:300px; background:white;"></div>
+
+        
         
 
         <script type="text/javascript">
@@ -246,7 +249,7 @@
                     cssEasing: 'ease', //'cubic-bezier(0.25, 0, 0.25, 1)',//
                     easing: 'linear', //'for jquery animation',////
              
-                    speed: 1200, //ms'
+                    speed: 600, //ms'
                     auto: false,
                     loop: false,
                     slideEndAnimation: true,

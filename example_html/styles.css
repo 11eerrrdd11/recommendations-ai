@@ -1,84 +1,21 @@
-:root {
-    --mdc-theme-primary: white;
+.gcp-recommendations-section {
     --mdc-theme-secondary:white;
-    --mdc-theme-on-primary: #fff;
     --mdc-theme-on-secondary:rgb(141, 208, 227);
-
-    --heading-font-family: Quicksand, sans-serif;
-    --heading-font-weight: 400;
-    --heading-font-style: normal;
-    --text-font-family: Quicksand, sans-serif;
-    --text-font-weight: 400;
-    --text-font-style: normal;
-    --base-text-font-size: 14px;
-    --default-text-font-size: 14px;
-    --background: #efefef;
-    --background-rgb: 239, 239, 239;
-    --light-background: #ffffff;
-    --light-background-rgb: 255, 255, 255;
-    --heading-color: #000000;
-    --text-color: #000000;
-    --text-color-rgb: 0, 0, 0;
-    --text-color-light: #6a6a6a;
-    --text-color-light-rgb: 106, 106, 106;
-    --link-color: #6a6a6a;
-    --link-color-rgb: 106, 106, 106;
-    --border-color: #cbcbcb;
-    --border-color-rgb: 203, 203, 203;
-    --button-background: #71cae6;
-    --button-background-rgb: 113, 202, 230;
-    --button-text-color: #ffffff;
-    --header-background: #ffffff;
-    --header-heading-color: #1c1b1b;
-    --header-light-text-color: #6a6a6a;
-    --header-border-color: #dddddd;
-    --footer-background: #ffffff;
-    --footer-text-color: #6a6a6a;
-    --footer-heading-color: #1c1b1b;
-    --footer-border-color: #e9e9e9;
-    --navigation-background: #1c1b1b;
-    --navigation-background-rgb: 28, 27, 27;
-    --navigation-text-color: #ffffff;
-    --navigation-text-color-light: rgba(255, 255, 255, 0.5);
-    --navigation-border-color: rgba(255, 255, 255, 0.25);
-    --newsletter-popup-background: #1c1b1b;
-    --newsletter-popup-text-color: #ffffff;
-    --newsletter-popup-text-color-rgb: 255, 255, 255;
-    --secondary-elements-background: #1c1b1b;
-    --secondary-elements-background-rgb: 255, 255, 255;
-    --secondary-elements-text-color: #ffffff;
-    --secondary-elements-text-color-light: rgba(255, 255, 255, 0.5);
-    --secondary-elements-border-color: rgba(255, 255, 255, 0.25);
-    --product-sale-price-color: #f94c43;
-    --product-sale-price-color-rgb: 249, 76, 67;
-    --horizontal-spacing-four-products-per-row: 60px;
-    --horizontal-spacing-two-products-per-row: 60px;
-    --vertical-spacing-four-products-per-row: 60px;
-    --vertical-spacing-two-products-per-row: 75px;
-    --drawer-transition-timing: cubic-bezier(0.645, 0.045, 0.355, 1);
-    --header-base-height: 80px;
-    --cursor-zoom-in-svg: url(//cdn.shopify.com/s/files/1/0077/0182/3585/t/14/assets/cursor-zoom-in.svg?v=1003263…);
-    --cursor-zoom-in-2x-svg: url(//cdn.shopify.com/s/files/1/0077/0182/3585/t/14/assets/cursor-zoom-in-2x.svg?v=7191920765093497920);
-
-}
-
-    
-body {
     background:rgb(239, 239, 239);
 }
 
-.scrolling-wrapper {
+.recs-scrolling-wrapper {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
     overflow-x: scroll;
     overflow-y: hidden;
     white-space: nowrap;
 }
-.scrolling-wrapper::-webkit-scrollbar {
+.recs-scrolling-wrapper::-webkit-scrollbar {
     display: none;
 }
 
-.cardy {
+.recs-product-sect {
     display: inline-block;
 }
 
@@ -87,13 +24,14 @@ Extra small devices (portrait phones, less than 544px)
 No media query since this is the default in Bootstrap because it is "mobile first"
 */
 
-.recs-title {font-size:1.2rem; letter-spacing: 0.15em; font-weight:250;}
-.product-title {font-size:0.75rem; letter-spacing: 0.15em; font-weight:250; line-height: 8pt;} /*1rem = 16px*/
-.product-price {font-size:0.75rem; color: rgb(140,140,140); letter-spacing: 0.1em; font-weight:200; line-height: 8pt;} /*1rem = 16px*/
+.recs-title {font-family: Quicksand, sans-serif; font-size:1.2rem; letter-spacing: 0.15em; font-weight:250;}
+.product-title {font-family: Quicksand, sans-serif; font-size:0.75rem; letter-spacing: 0.15em; font-weight:250; line-height: 8pt;} /*1rem = 16px*/
+.product-price {font-family: Quicksand, sans-serif; font-size:0.75rem; color: rgb(140,140,140); letter-spacing: 0.1em; font-weight:200; line-height: 8pt;} /*1rem = 16px*/
 .pre-title-div {height:30px}
 .post-title-div {height:30px}
 .post-image-div {height:30px}
 .post-carousel-div {height:30px}
+
 /*
 ####################################################
 M E D I A  Q U E R I E S
