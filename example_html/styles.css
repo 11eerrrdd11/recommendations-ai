@@ -27,10 +27,10 @@ No media query since this is the default in Bootstrap because it is "mobile firs
 .recs-title {font-family: Quicksand, sans-serif; font-size:1.2rem; letter-spacing: 0.15em; font-weight:250;}
 .product-title {font-family: Quicksand, sans-serif; font-size:0.75rem; letter-spacing: 0.15em; font-weight:250; line-height: 8pt;} /*1rem = 16px*/
 .product-price {font-family: Quicksand, sans-serif; font-size:0.75rem; color: rgb(140,140,140); letter-spacing: 0.1em; font-weight:200; line-height: 8pt;} /*1rem = 16px*/
-.pre-title-div {height:30px}
+.pre-title-div {height:45px}
 .post-title-div {height:30px}
 .post-image-div {height:30px}
-.post-carousel-div {height:30px}
+.post-carousel-div {height:45px}
 
 /*
 ####################################################
