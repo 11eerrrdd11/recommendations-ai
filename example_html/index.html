@@ -228,7 +228,7 @@
                     cssEasing: 'ease', //'cubic-bezier(0.25, 0, 0.25, 1)',//
                     easing: 'linear', //'for jquery animation',////
              
-                    speed: 400, //ms'
+                    speed: 1200, //ms'
                     auto: false,
                     loop: false,
                     slideEndAnimation: true,
@@ -292,6 +292,9 @@
                     var slideCount = slider.getCurrentSlideCount() - 1;
                     console.log(`Current slide index=${slideCount}`)
                     var toIndex = slideCount - 4;
+                    if (toIndex < 0){
+                        toIndex = 0;
+                    }
                     slider.goToSlide(toIndex);
                     console.log(`Moved to index=${toIndex}`)
                 });
@@ -302,7 +305,7 @@
                     var slideCount = slider.getCurrentSlideCount() - 1;
                     console.log(`Current slide index=${slideCount}`)
                     var toIndex = slideCount + 4;
-                    if (toIndex > (sliderItems - itemsInSlider - 1)){
+                    if (toIndex > (sliderItems - itemsInSlider)){
                         toIndex = sliderItems - itemsInSlider;
                     }
                     slider.goToSlide(toIndex);
