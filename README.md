@@ -128,12 +128,18 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
 ## ToDo
 
 - [ ] Hexxee phase 2
-    - [ ] Create recommended for you section
-    - [ ] Create others you may like section
-    - [ ] Create frequently bought together section
+    - [ ] Create recommendations carousel
+    - [ ] Create shopping cart recommendations widget (needs lots of purchases before useful)
     - [ ] Train all 3 model types
     - [ ] Render recommendations in theme
     - [ ] Start optimizely AB test
+- [ ] Display recommendations
+    - [ ] bootstrap layout for all screen sizes
+        - [ ] when scrolls
+            - [ ] show half a product on the right
+            - [ ]
+        - [ ] when carousel, always show buttons to animate position
+        - [ ] 
 - [ ] Start AB test with client
     - [x] Add optimizely to theme
     - [x] Save experimentId when logging all user events (front/backend)

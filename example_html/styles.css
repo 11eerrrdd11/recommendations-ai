@@ -2,3 +2,71 @@ body {
     font-family: "Open Sans", sans-serif;
     background:rgb(239, 239, 239);
 }
+
+.scrolling-wrapper {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+.scrolling-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.cardy {
+    display: inline-block;
+}
+
+/* 
+Extra small devices (portrait phones, less than 544px) 
+No media query since this is the default in Bootstrap because it is "mobile first"
+*/
+.recs-title {font-size:1.2rem;} /*1rem = 16px*/
+.product-title {font-size:0.75rem; } /*1rem = 16px*/
+.product-price {font-size:0.75rem;} /*1rem = 16px*/
+.pre-title-div {height:30px}
+.post-title-div {height:30px}
+.post-image-div {height:30px}
+.post-carousel-div {height:30px}
+/*
+####################################################
+M E D I A  Q U E R I E S
+####################################################
+*/
+ 
+/*
+::::::::::::::::::::::::::::::::::::::::::::::::::::
+Bootstrap 4 breakpoints
+*/
+/* Small devices (landscape phones, 544px and up) */
+@media (min-width: 544px) {  
+    .recs-title {font-size:1.2rem;} /*1rem = 16px*/
+    .product-title {font-size:0.85rem;} /*1rem = 16px*/
+    .product-price {font-size:0.85rem;} /*1rem = 16px*/
+}
+ 
+/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
+@media (min-width: 768px) {  
+    .recs-title {font-size:1.2rem;} /*1rem = 16px*/
+    .product-title {font-size:0.85rem;} /*1rem = 16px*/
+    .product-price {font-size:0.85rem;} /*1rem = 16px*/
+}
+ 
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) { 
+    .recs-title {font-size:1.2rem;} /*1rem = 16px*/
+    .product-title {font-size:0.85rem;} /*1rem = 16px*/
+    .product-price {font-size:0.85rem;} /*1rem = 16px*/
+    .pre-title-div {height:50px}
+    .post-title-div {height:50px}
+    .post-carousel-div {height:60px}
+}
+ 
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {  
+    .recs-title {font-size:1.2rem;} /*1rem = 16px*/
+    .product-title {font-size:0.85rem; } /*1rem = 16px*/
+    .product-price {font-size:0.85rem;} /*1rem = 16px*/ 
+}
+
