@@ -75,7 +75,7 @@
         <!-- For desktop devices show a carousel that clicks to animate -->
         <div class="d-none d-lg-block container-fluid">
             <div class="row align-items-center">
-                <div class="col-1 text-center">
+                <div id="goToPrevSlideContainer" class="col-1 text-center">
 
 
                     <button type="button" id="goToPrevSlide">Prev</button>
@@ -186,7 +186,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col-1 text-center">
+                <div id="goToNextSlideContainer" class="col-1 text-center">
                     
                     
                     <button type="button" id="goToNextSlide">Next</button>
@@ -204,9 +204,16 @@
         
 
         <script type="text/javascript">
+            var backButton = document.getElementById("goToPrevSlideContainer");
+            var forwardButton = document.getElementById("goToNextSlideContainer");
             var sliderItems = $('#lightSlider li').length;
             var itemsInSlider = 4;
             console.log(`${sliderItems} items in slider.`)
+
+            if (sliderItems <= itemsInSlider){
+                forwardButton.style.visibility = 'hidden';
+            }
+            backButton.style.visibility = 'hidden';
 
             $(document).ready(function() {
                 var slider = $("#lightSlider").lightSlider({
@@ -256,29 +263,45 @@
                     onBeforeStart: function (el) {},
                     onSliderLoad: function (el) {},
                     onBeforeSlide: function (el) {},
-                    onAfterSlide: function (el) {},
+                    onAfterSlide: function (el) {
+                        var newIndex = slider.getCurrentSlideCount() - 1;
+
+                        // hide backward button if at start
+                        if (newIndex <= 0){
+                            backButton.style.visibility = 'hidden';
+                        // show the backward button if enough items and not at start
+                        } else if (sliderItems > itemsInSlider) {
+                            backButton.style.visibility = 'visible';
+                        }
+
+                        // hide the forward button if at end
+                        if (newIndex > (sliderItems - itemsInSlider - 1)){
+                            forwardButton.style.visibility = 'hidden';
+                        // show the forward button if enough items and not at end
+                        } else if (sliderItems > itemsInSlider) {
+                            forwardButton.style.visibility = 'visible';
+                        }
+                    },
                     onBeforeNextSlide: function (el) {},
                     onBeforePrevSlide: function (el) {}
                 });
 
                 $('#goToPrevSlide').on('click', function () {
                     // TODO: move all new items into view if possible
+                    forwardButton.style.visibility = 'visible';
                     var slideCount = slider.getCurrentSlideCount() - 1;
                     console.log(`Current slide index=${slideCount}`)
                     var toIndex = slideCount - 4;
-                    
-                    if (toIndex < 0){
-                        toIndex = 0;
-                    }
                     slider.goToSlide(toIndex);
                     console.log(`Moved to index=${toIndex}`)
                 });
+
                 $('#goToNextSlide').on('click', function () {
                     // TODO: move all new items into view if possible
+                    backButton.style.visibility = 'visible';
                     var slideCount = slider.getCurrentSlideCount() - 1;
                     console.log(`Current slide index=${slideCount}`)
                     var toIndex = slideCount + 4;
-
                     if (toIndex > (sliderItems - itemsInSlider - 1)){
                         toIndex = sliderItems - itemsInSlider;
                     }
