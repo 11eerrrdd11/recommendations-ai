@@ -127,6 +127,8 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
 
 ## ToDo
 
+I need to load `row, col, text-center text-uppercase, d-none, d-block, container-fluid, flex-row, flex-nowrap, img-fluid` from bootstrap.
+
 - [ ] Hexxee phase 2
     - [ ] Create recommendations carousel
     - [ ] Create shopping cart recommendations widget (needs lots of purchases before useful)
@@ -134,12 +136,11 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
     - [ ] Render recommendations in theme
     - [ ] Start optimizely AB test
 - [ ] Display recommendations
-    - [ ] bootstrap layout for all screen sizes
-        - [ ] when scrolls
-            - [ ] show half a product on the right
-            - [ ]
-        - [ ] when carousel, always show buttons to animate position
-        - [ ] 
+    - [x] bootstrap layout for all screen sizes
+    - [x] touch scrolling
+    - [x] carousel
+    - [x] format fonts like Hexxee theme
+    - [ ] render from a list of products with links
 - [ ] Start AB test with client
     - [x] Add optimizely to theme
     - [x] Save experimentId when logging all user events (front/backend)
