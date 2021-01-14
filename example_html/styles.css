@@ -59,8 +59,8 @@ Bootstrap 4 breakpoints
 /* Large devices (desktops, 992px and up) */
 @media (min-width: 992px) { 
     .recs-title {font-size:1.2rem;} /*1rem = 16px*/
-    .product-title {font-size:0.85rem;} /*1rem = 16px*/
-    .product-price {font-size:0.85rem;} /*1rem = 16px*/
+    .product-title {font-size:0.85rem; line-height: 13pt; margin: 0px 0;} /*1rem = 16px*/
+    .product-price {font-size:0.85rem; line-height: 35pt; margin: 0px 0;} /*1rem = 16px*/
     .pre-title-div {height:50px}
     .post-title-div {height:50px}
     .post-carousel-div {height:60px}
