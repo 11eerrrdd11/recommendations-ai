@@ -11,6 +11,7 @@
     - Add contractor to project with the following roles
         - Editor
         - Recommendations Ai Admin
+- Create an optimizely account and add ojapringe@gmail.com as developer
 
 ## Deploy recommendations Ai backend
 
@@ -50,7 +51,7 @@ export SHOPIFY_API_KEY=<your private app api key>
 export SHOPIFY_APP_PASSWORD=<your private app password>
 export SHOPIFY_CURRENCY_CODE=<currency code for products in shopify admin console>
 export SHOPIFY_WEBHOOK_SECRET=<from settings > notifications > webhooks>
-export OPTIMIZELY_SDK_KEY=<your optimizely sdk key>
+export OPTIMIZELY_SDK_KEY=<your optimizely production sdk key>
 ```
 
 - Configure firebase
@@ -76,7 +77,7 @@ firebase deploy --only functions
 - Paste the following code directly under the <head> tag in your theme.liquid file
 
 ```html
-<!-- Google Analytics & uid tracking -->
+<!-- START PERSONALIZATION CLIENT ID TRACKING -->
 <script>
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -86,21 +87,18 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 ga('create', '<GOOGLE ANALYTICS ID>', 'auto');
 ga('set', 'userId', '{{customer.id}}');
 </script>
+<!-- END PERSONALIZATION CLIENT ID TRACKING -->
 
-<!-- PERSONALIZATION - install Optimizely-->
+<!-- START PERSONALIZATION AB TESTING -->
 <script src="https://unpkg.com/@optimizely/optimizely-sdk@3.5/dist/optimizely.browser.umd.min.js"></script>
 <script src="https://cdn.optimizely.com/datafiles/UxFYZqB5NpjGBo6f84uCE.json/tag.js"></script>
-```
-
-- Paste the following code under the <body> tag in your theme.liquid
-
-```html
-<!-- PERSONALIZATION - instantiate optimizely -->
 <script>
 var optimizelyClientInstance = optimizelySdk.createInstance({
     datafile: window.optimizelyDatafile,
 });
 </script>
+<script>window.moneyFormat = {{ shop.money_format | json }};</script>
+<!-- END PERSONALIZATION AB TESTING -->
 ```
 
 - Add `./shopify_scripts/recommendation_events.js` & `./shopify_scripts/recommendation_requests.js` to the `assets` directory of your theme
@@ -122,23 +120,23 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
 
 ## Phase 2 - serve recommendations in the customer journey
 
-- After 7 days you will have enough data to train models
-- Have a front end developer add code to your theme to request and serve recommendations in the customer journey. You can use the functions in recommendation_requests.js to get predictions.
+- Train a model when you have collected enough data
+- Add html to your theme to render recommendations
+- Use functions in `recommendation_requests.js` to load recommendations
 
 ## ToDo
 
-How Hexxee theme handles state:
-
-- The section title exists immediately when the page loads 
-- When the products are retrieved the section extends and renders
-- Images are invisible, then animate into view when loaded (size and alpha)
-
-How Helo should handle state:
-
-- The section should not exist until shopify product payloads are returned
-- Once images are precached, the section should show
-- Images should transition into view
-
+- [ ] Hexxee phase 2
+    - [x] Ability to populate *you may also like* with shopify recs or GCP
+    - [x] Ability to add recommended for you to homepage
+    - [x] OK new carousels with Hexxee team
+    - [ ] Train *recommended for you* and *others you may like*
+    - [ ] run AB test to compare adding *recommended for you* to home page (make sure to use production optimizely keys)
+    - [ ] Ability to populate *recently viewed* with shopify or GCP
+    - [ ] run AB test to compare carousels
+    - [ ] run AB test to compare *you may also like*
+    - [ ] run AB test to compare *recently viewed*
+    - [ ] run AB test to compare number of recs
 - [ ] Display recommendations
     - [x] mobile layout and controls
     - [x] desktop layout and controls
@@ -149,18 +147,8 @@ How Helo should handle state:
     - [x] cache images before showing
     - [x] animate section into view
     - [x] handle long titles
-    - [ ] load minimum required code from external resources
-- [ ] Hexxee phase 2
-    - [x] Ability to populate *you may also like* with shopify recs or GCP
-    - [x] Ability to add recommended for you to homepage
-    - [x] OK new carousels with Hexxee team
-    - [ ] Train *recommended for you* and *others you may like*
-    - [ ] run AB test to compare adding *recommended for you* to home page
-    - [ ] Ability to populate *recently viewed* with shopify or GCP
-    - [ ] run AB test to compare carousels
-    - [ ] run AB test to compare *you may also like*
-    - [ ] run AB test to compare *recently viewed*
-    - [ ] run AB test to compare number of recs
+    - [ ] load minimum required code from bootstrap and material design
+    - [ ] fix jarring mobile carousel
 - [ ] Start AB test with client
     - [x] Add optimizely to theme
     - [x] Save experimentId when logging all user events (front/backend)
