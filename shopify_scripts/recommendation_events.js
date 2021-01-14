@@ -1,16 +1,13 @@
 // functions to log user behaviour to GCP recommendations AI
-async function logUserEvent(payload) {  
+async function logUserEvent(payload) {
   
   // Add the optimizely variant ID to the payload      
   const clientId = payload.userInfo.visitorId;
-  const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);  
-  
-  console.log(`OPTIMIZELY VARIATIONID=${experimentVariationId}`);
+  const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);
   Object.assign(payload, {'eventDetail': {'experimentIds': experimentVariationId, "recommendationToken": payload.eventDetail.recommendationToken,}})
-  console.log(payload);
   
   // Log the event
-  const url = `https://us-central1-recommendations-ai-1234.cloudfunctions.net/logUserEvent`
+  const url = `https://us-central1-hexxee-personalisation.cloudfunctions.net/logUserEvent`
   console.log(JSON.stringify(payload));
   const response = await fetch(url, { 
     method: 'POST',
@@ -23,7 +20,6 @@ async function logUserEvent(payload) {
   });
   const data = await response.json();
   console.log(data);
-//   alert(JSON.stringify(data));
   return data;
 }
 
@@ -192,8 +188,15 @@ function checkoutStart(){
   });
 }
 
-function categoryPageView(collectionTags, collectionId){
+function categoryPageView(collection, collectionTags){
   console.log(`User viewed category page`)
+//   console.log(collection);
+//   console.log(collectionTags);
+  
+  if (collectionTags.length < 1){
+  	collectionTags = [collection.handle];
+  }
+  console.log(`Collection tags: ${collectionTags}`);
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
@@ -338,42 +341,6 @@ function addToList(){
   console.log(`User added product to list`)
 }
 
-console.log('loaded recommendations AI events functions');
-
-function saveClientIdToFirestore(){
-  console.log(`Saving clientId to firestore`)
-  
-  ga(async function(tracker) {
-    var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
-    var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
-    
-    const response = await fetch('/cart.js', {method: 'GET'})
-    const json = await response.json();
-    const cartId = json.token;
-    const payload = {
-      clientId: clientId,
-      userId: customerId,
-      cartId: cartId,
-    }
-    
-    // save data to firestore with cloud function
-    const url = `https://us-central1-recommendations-ai-1234.cloudfunctions.net/saveClientId`
-    const resp = await fetch(url, { 
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-    const data = await resp.json();
-    console.log(data);
-  });
-}
-
 
 async function saveClientCartRelationship(){
   console.log(`adding client id to cart as private attribute`);
@@ -383,7 +350,6 @@ async function saveClientCartRelationship(){
       // Save private attribute to cart to fix cart ID
       const clientId = tracker.get('clientId');
       const customerId = tracker.get('userId');
-      const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);
       const payload = {
         __clientId: `${clientId}`
       }
@@ -403,9 +369,8 @@ async function saveClientCartRelationship(){
         clientId: clientId,
         userId: customerId,
         cartId: cartId,
-        experimentVariationId: experimentVariationId,
       }
-      const url = `https://us-central1-recommendations-ai-1234.cloudfunctions.net/saveClientId`
+      const url = `https://us-central1-hexxee-personalisation.cloudfunctions.net/saveClientId`
       const serverResponse = await fetch(url, { 
         method: 'POST',
         mode: 'cors',
@@ -423,3 +388,13 @@ async function saveClientCartRelationship(){
     }
   });
 }
+
+async function getCollectionProductsAsync(collectionId){
+	const response = await fetch(`/admin/api/2021-01/collections/${collectionId}/products.json`, {method: 'GET'});
+    console.log(response);
+    const json = await response.json();
+    console.log(json);
+  	return json.products;
+}
+
+console.log('loaded recommendations AI events functions');
