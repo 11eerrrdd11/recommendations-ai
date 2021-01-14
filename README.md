@@ -127,19 +127,40 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
 
 ## ToDo
 
-I need to load `row, col, text-center text-uppercase, d-none, d-block, container-fluid, flex-row, flex-nowrap, img-fluid` from bootstrap.
+How Hexxee theme handles state:
 
-- [ ] Hexxee phase 2
-    - [ ] Render homepage and PDP page carousels in theme
-    - [ ] OK theme with Hexxee team
-    - [ ] Train *recommended for you* and *others you may like*
-    - [ ] Start optimizely AB test
+- The section title exists immediately when the page loads 
+- When the products are retrieved the section extends and renders
+- Images are invisible, then animate into view when loaded (size and alpha)
+
+How Helo should handle state:
+
+- The section should not exist until shopify product payloads are returned
+- Once images are precached, the section should show
+- Images should transition into view
+
 - [ ] Display recommendations
     - [x] mobile layout and controls
     - [x] desktop layout and controls
     - [x] css to match Hexxee theme
     - [x] render products from javascript
-    - [ ] handle case where no recs are returned
+    - [x] handle case where no recs are returned from gcp or shopify
+    - [x] handle multiple carousels on one page
+    - [x] cache images before showing
+    - [x] animate section into view
+    - [x] handle long titles
+    - [ ] load minimum required code from external resources
+- [ ] Hexxee phase 2
+    - [x] Ability to populate *you may also like* with shopify recs or GCP
+    - [x] Ability to add recommended for you to homepage
+    - [x] OK new carousels with Hexxee team
+    - [ ] Train *recommended for you* and *others you may like*
+    - [ ] run AB test to compare adding *recommended for you* to home page
+    - [ ] Ability to populate *recently viewed* with shopify or GCP
+    - [ ] run AB test to compare carousels
+    - [ ] run AB test to compare *you may also like*
+    - [ ] run AB test to compare *recently viewed*
+    - [ ] run AB test to compare number of recs
 - [ ] Start AB test with client
     - [x] Add optimizely to theme
     - [x] Save experimentId when logging all user events (front/backend)
@@ -212,4 +233,6 @@ I need to load `row, col, text-center text-uppercase, d-none, d-block, container
 ## Thoughts
 
 - Clients are bad at even simple tasks like setting up a GCP account with billing
-- Some clients will have insufficient data to train models. Looks like Hexxee is on track to train *recommended for you* after 7 days.
+- Clients don't understand that *recommended for you* doesn't appear unless that user has a browsing history
+- Clients don't understand the *you may also like* is not personalized per user
+
