@@ -130,25 +130,21 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
     - [x] Ability to populate *you may also like* with shopify recs or GCP
     - [x] Ability to add recommended for you to homepage
     - [x] OK new carousels with Hexxee team
-    - [ ] Train *recommended for you* and *others you may like*
+    - [ ] Train *recommended for you*
     - [ ] run AB test to compare adding *recommended for you* to home page (make sure to use production optimizely keys)
+    - [ ] Train *others you may like*
     - [ ] Ability to populate *recently viewed* with shopify or GCP
     - [ ] run AB test to compare carousels
     - [ ] run AB test to compare *you may also like*
     - [ ] run AB test to compare *recently viewed*
     - [ ] run AB test to compare number of recs
+    - [ ] Train *shopping cart model*
+    - [ ] run AB test to compare adding shopping cart expansion
 - [ ] Display recommendations
     - [x] mobile layout and controls
     - [x] desktop layout and controls
-    - [x] css to match Hexxee theme
-    - [x] render products from javascript
-    - [x] handle case where no recs are returned from gcp or shopify
-    - [x] handle multiple carousels on one page
-    - [x] cache images before showing
-    - [x] animate section into view
-    - [x] handle long titles
-    - [ ] load minimum required code from bootstrap and material design
-    - [ ] fix jarring mobile carousel
+    - [ ] fix delay in rendering currency in correct format
+    - [ ] load minimum required cdn code and minify javascript assets
 - [ ] Start AB test with client
     - [x] Add optimizely to theme
     - [x] Save experimentId when logging all user events (front/backend)
