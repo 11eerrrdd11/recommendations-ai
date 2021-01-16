@@ -8,7 +8,7 @@ async function logUserEvent(payload) {
   
   // Log the event
   const url = `https://us-central1-hexxee-personalisation.cloudfunctions.net/logUserEvent`
-  console.log(JSON.stringify(payload));
+//   console.log(JSON.stringify(payload));
   const response = await fetch(url, { 
     method: 'POST',
     mode: 'cors',
@@ -44,15 +44,15 @@ async function getCartAsync(){
 ///////////////////////////////
 
 function detailPageView(product, attributionToken){
-  console.log(`User viewed product detail page`);
+//   console.log(`User viewed product detail page`);
   
   ga(function(tracker) {
     var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
+//     console.log(`client id = ${clientId}`);
     var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
+//     console.log(`customer id = ${customerId}`);
     var attributionToken = getParameterByName('recToken');
-    console.log(`attribution token = ${attributionToken}`);
+//     console.log(`attribution token = ${attributionToken}`);
     var user_event = {
       "eventType" : "detail-page-view",
       "userInfo": {
@@ -76,13 +76,13 @@ function detailPageView(product, attributionToken){
 };
 
 function homePageView(product){
-  console.log(`User viewed home page`)
+//   console.log(`User viewed home page`)
   
   ga(function(tracker) {
     var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
+//     console.log(`client id = ${clientId}`);
     var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
+//     console.log(`customer id = ${customerId}`);
     var user_event = {
       "eventType": "home-page-view",
       "userInfo": {
@@ -136,16 +136,16 @@ function homePageView(product){
 ///////////////////////////////////////
 
 function checkoutStart(){
-  console.log(`User started checkout`)
+//   console.log(`User started checkout`)
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
     var customerId = tracker.get('userId');
-    console.log(`client id = ${clientId}`);
-    console.log(`customerId = ${customerId}`);
+//     console.log(`client id = ${clientId}`);
+//     console.log(`customerId = ${customerId}`);
     
     const response = await fetch('/cart.js', {method: 'GET'})
-    console.log(response);
+//     console.log(response);
     const json = await response.json();
     const currencyCode = json.currency;
     const items = json.items;
@@ -161,7 +161,7 @@ function checkoutStart(){
         quantity: item.quantity
       });
     });
-    console.log(productDetails);
+//     console.log(productDetails);
     
     var user_event = {
       "eventType": "checkout-start",
@@ -189,7 +189,7 @@ function checkoutStart(){
 }
 
 function categoryPageView(collection, collectionTags){
-  console.log(`User viewed category page`)
+//   console.log(`User viewed category page`)
 //   console.log(collection);
 //   console.log(collectionTags);
   
@@ -201,8 +201,8 @@ function categoryPageView(collection, collectionTags){
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
     var customerId = tracker.get('userId');
-    console.log(`client id = ${clientId}`);
-    console.log(`customerId = ${customerId}`);
+//     console.log(`client id = ${clientId}`);
+//     console.log(`customerId = ${customerId}`);
     
     var user_event = {
       "eventType": "category-page-view",
@@ -224,13 +224,13 @@ function categoryPageView(collection, collectionTags){
 }
 
 function search(query){
-  console.log(`User searched`)
+//   console.log(`User searched`)
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
+//     console.log(`client id = ${clientId}`);
     var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
+//     console.log(`customer id = ${customerId}`);
 
     var user_event = {
       "eventType": "search",
@@ -250,13 +250,13 @@ function search(query){
 }
 
 function shoppingCartPageView(){
-  console.log(`User viewed shopping cart page`)
+//   console.log(`User viewed shopping cart page`)
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
+//     console.log(`client id = ${clientId}`);
     var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
+//     console.log(`customer id = ${customerId}`);
     
     const response = await fetch('/cart.js', {method: 'GET'})
     const json = await response.json();
@@ -274,7 +274,7 @@ function shoppingCartPageView(){
         quantity: item.quantity
       });
     });
-    console.log(productDetails);
+//     console.log(productDetails);
     
     var user_event = {
       "eventType": "shopping-cart-page-view",
@@ -299,13 +299,13 @@ function shoppingCartPageView(){
 ///////////////
 
 function pageVisit(){
-  console.log(`User visited page`)
+//   console.log(`User visited page`)
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
+//     console.log(`client id = ${clientId}`);
     var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
+//     console.log(`customer id = ${customerId}`);
     
     // Get all products on this page
     
@@ -329,21 +329,8 @@ function pageVisit(){
   });
 }
 
-function refund(){
-  console.log(`User processed refund`)
-}
-
-function removeFromList(){
-  console.log(`User removed from list`)
-}
-
-function addToList(){
-  console.log(`User added product to list`)
-}
-
-
 async function saveClientCartRelationship(){
-  console.log(`adding client id to cart as private attribute`);
+//   console.log(`adding client id to cart as private attribute`);
   ga(async function(tracker) {
     try {
       
@@ -381,7 +368,7 @@ async function saveClientCartRelationship(){
         body: JSON.stringify(firestorePayload)
       });
       const data = await serverResponse.json();
-      console.log(data);
+//       console.log(data);
       
     } catch (e){
     	console.error(e);
@@ -391,10 +378,8 @@ async function saveClientCartRelationship(){
 
 async function getCollectionProductsAsync(collectionId){
 	const response = await fetch(`/admin/api/2021-01/collections/${collectionId}/products.json`, {method: 'GET'});
-    console.log(response);
+//     console.log(response);
     const json = await response.json();
-    console.log(json);
+//     console.log(json);
   	return json.products;
 }
-
-console.log('loaded recommendations AI events functions');

@@ -1,10 +1,11 @@
-console.log('loaded recommendations AI requests functions');
+// console.log('loaded recommendations AI requests functions');
 
+const MAXRECS = 6;
 async function requestShopifyRecsAsync(productId) {
   const baseUrl = `/recommendations/products`;
   const url = baseUrl + ".json?product_id=" + productId + "&limit=4"
   const response = await fetch(url);
-  console.log(response);
+//   console.log(response);
   const data = await response.json();
   const products = data.products;
   return products.map(function(p){
@@ -22,7 +23,7 @@ async function requestShopifyRecentlyViewedAsync() {
   const baseUrl = `/recently-viewed/products`;
   const url = baseUrl + "&limit=8"
   const response = await fetch(url);
-  console.log(response);
+//   console.log(response);
   const data = await response.json();
   const products = data.products;
   return products.map(function(p){
@@ -43,7 +44,7 @@ async function requestRecommendationsAsync(payload) {
     placement: placement,
     payload: payload,
   }
-  console.log(JSON.stringify(completePayload));
+//   console.log(JSON.stringify(completePayload));
   const response = await fetch(url, { 
     method: 'POST',
     mode: 'cors',
@@ -67,8 +68,8 @@ function checkRecsEnabled(clientId){
     return show_recs;
 }
 
-function getRecommendedForYouProducts(customerId){
-  console.log(`User requested recommended products for them`);
+async function getRecommendedForYouProducts(customerId, callback){
+//   console.log(`User requested recommended products for them`);
   
   ga(async function(tracker) {
     
@@ -82,8 +83,8 @@ function getRecommendedForYouProducts(customerId){
    	var dryRun = true;
     var contextEventType = "detail-page-view";
     
-    console.log(`customer id = ${customerId}`);
-    console.log(`client id = ${clientId}`);
+//     console.log(`customer id = ${customerId}`);
+//     console.log(`client id = ${clientId}`);
     
     var payload = {
 //       "filter": filterString,
@@ -111,7 +112,7 @@ function getRecommendedForYouProducts(customerId){
     
    	var result = await requestRecommendationsAsync(payload);
     var recommendationToken = result.recommendationToken;
-    var productIds = result.results.slice(0, 6);
+    var productIds = result.results.slice(0, MAXRECS);
     if (productIds.length === 0){
       return
     }
@@ -121,11 +122,12 @@ function getRecommendedForYouProducts(customerId){
     	return;
     }
     showRecommendations(products, recommendationToken, "recommended-for-you");
+    callback();
   });
 }
 
 function getYouMayAlsoLikeProducts(customerId, product){
-  console.log(`User requested similar products`);
+//   console.log(`User requested similar products`);
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
@@ -138,8 +140,8 @@ function getYouMayAlsoLikeProducts(customerId, product){
    	var dryRun = true;
     var contextEventType = "detail-page-view";
     
-    console.log(`customer id = ${customerId}`);
-    console.log(`client id = ${clientId}`);
+//     console.log(`customer id = ${customerId}`);
+//     console.log(`client id = ${clientId}`);
     
     var payload = {
 //       "filter": filterString,
@@ -167,7 +169,7 @@ function getYouMayAlsoLikeProducts(customerId, product){
     
    	var result = await requestRecommendationsAsync(payload);
     var recommendationToken = result.recommendationToken;
-    var productIds = result.results.slice(0, 6);
+    var productIds = result.results.slice(0, MAXRECS);
     if (productIds.length === 0){
       return
     }
@@ -181,7 +183,7 @@ function getYouMayAlsoLikeProducts(customerId, product){
 }
 
 function getRecentlyViewedProducts(customerId, product){
-  console.log(`User requested most recently viewed products`);
+//   console.log(`User requested most recently viewed products`);
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
@@ -194,8 +196,8 @@ function getRecentlyViewedProducts(customerId, product){
    	var dryRun = true;
     var contextEventType = "detail-page-view";
     
-    console.log(`customer id = ${customerId}`);
-    console.log(`client id = ${clientId}`);
+//     console.log(`customer id = ${customerId}`);
+//     console.log(`client id = ${clientId}`);
     
     var payload = {
 //       "filter": filterString,
@@ -223,7 +225,7 @@ function getRecentlyViewedProducts(customerId, product){
     
    	var result = await requestRecommendationsAsync(payload);
     var recommendationToken = result.recommendationToken;
-    var productIds = result.results.slice(0, 6);
+    var productIds = result.results.slice(0, MAXRECS);
     if (productIds.length === 0){
       return
     }
@@ -250,14 +252,18 @@ async function getShopifyProductPayloadsAsync(products){
 	const out = await Promise.all(products.map(function(product){
     	return getProductAsync(product.id);
     }));
-  	const images = out.map(function(p){return p.image});
+//   	const images = out.map(function(p){
+//       var splitImageSrc = p.image.split(".jpg");
+//       var smallerImageSrc = splitImageSrc[0] + '_400x.jpg' +  splitImageSrc[1];
+//       return smallerImageSrc;
+//     });
     const imageLoadPromises = [];
-  	images.forEach(function(i, index){
-      if (index <= 3){
-      	imageLoadPromises.push(addImageProcessAsync(i))
-      } 
-    });
-  	await Promise.all(imageLoadPromises);
+//   	images.forEach(function(i, index){
+//       if (index <= 3){
+//       	imageLoadPromises.push(addImageProcessAsync(i))
+//       } 
+//     });
+//   	await Promise.all(imageLoadPromises);
   	var t1 = performance.now()
   	console.log("Call to getShopifyProductPayloadsAsync took " + (t1 - t0) + " milliseconds.")
     return out;
@@ -278,7 +284,6 @@ function showRecommendations(products, recommendationToken, sectionId){
         return renderMobileProduct(product, recommendationToken);
     }).join(" ");
 
-    
 	//  get sections to change HTML for   
     var recsDiv = document.getElementById(sectionId);
   	var desktopSlider = recsDiv.querySelectorAll(".desktop-recs-slider")[0]
@@ -294,6 +299,7 @@ function showRecommendations(products, recommendationToken, sectionId){
       forwardButton.style.visibility = 'hidden';
     }
     backButton.style.visibility = 'hidden';
+    
     
   	var slider = $(`#${sectionId} .desktop-recs-slider`).lightSlider({
       item: itemsInSlider,
@@ -369,42 +375,48 @@ function showRecommendations(products, recommendationToken, sectionId){
       // TODO: move all new items into view if possible
       forwardButton.style.visibility = 'visible';
       var slideCount = slider.getCurrentSlideCount() - 1;
-      console.log(`Current slide index=${slideCount}`)
+//       console.log(`Current slide index=${slideCount}`)
       var toIndex = slideCount - 4;
       if (toIndex < 0){
         toIndex = 0;
       }
       slider.goToSlide(toIndex);
-      console.log(`Moved to index=${toIndex}`)
+//       console.log(`Moved to index=${toIndex}`)
     });
 
     $(`#${sectionId} .goToNextSlide`).on('click', function () {
       backButton.style.visibility = 'visible';
       var slideCount = slider.getCurrentSlideCount() - 1;
-      console.log(`Current slide index=${slideCount}`)
+//       console.log(`Current slide index=${slideCount}`)
       var toIndex = slideCount + 4;
       if (toIndex > (sliderItems - itemsInSlider)){
         toIndex = sliderItems - itemsInSlider;
       }
       slider.goToSlide(toIndex);
-      console.log(`Moved to index=${toIndex}`)
+//       console.log(`Moved to index=${toIndex}`)
     });
-    
-
-    // change HTML to show recs
+  
+  	// set the HTML
     desktopSlider.innerHTML = desktopListItems;
-    mobileSlider.innerHTML = `
-	<div class="recs-product-sect col-2 col-sm-2 col-md-3 d-lg-none"></div>
-    <div class="recs-product-sect col-lg-2 col-xl-1 d-none d-lg-block"></div>
-		${mobileListItems}
-    <div class="recs-product-sect col-2 col-sm-2 col-md-3 d-lg-none"></div>
-	<div class="recs-product-sect col-lg-2 col-xl-1 d-none d-lg-block"></div>`;
+    mobileSlider.innerHTML = mobileListItems;
+  
+	// make mobile cards clickable
+    var mobileCarouselItems = recsDiv.querySelectorAll(".splide__slide")
+    var moblileCarouselItemLinks = recsDiv.querySelectorAll(".main-link")
     
+    for (let index = 0; index < mobileCarouselItems.length; index++) {
+        (function () {
+            var card = mobileCarouselItems[index];
+      		var mainLink = moblileCarouselItemLinks[index];
+          	card.addEventListener("click", function(event){mainLink.click()})
+        }()); // immediate invocation
+    }
+  
     // animate into view
   recsDiv.style.opacity = 0.0;
   recsDiv.style.display = "block";
   $(`#${sectionId}`).animate({opacity: '1.0'}, 1000, function(){
-    console.log(`FINISHED ANIMATING`);
+//     console.log(`FINISHED ANIMATING`);
   });
 };
 
@@ -432,17 +444,14 @@ async function getProductAsync(productId){
 }
 
 function renderDesktopProduct(product, recToken) {
-  console.log(product);
   var productUrl = updateQueryStringParameter(product.url, 'recToken', recToken);
-  var imageSrc = product.image;
-  var image = new Image();
-  image.src = imageSrc;
+  var imageHtml = getImageHtml(product);
 	
   return [
     '<li>',
 	`<a href=${productUrl} style="text-decoration: none; color:black">`,
     '<div class="">',
-    '<image src="' + product.image + '" alt="'+ product.title +'" class="img-fluid"></image>',
+    imageHtml,
     '<div class="post-image-div"></div>',
     '<p class="product-title text-center text-uppercase">' + product.title + '</p>',
     '<p class="product-price text-center text-uppercase">' + formatMoney(product.price, window.moneyFormat) + '</p>',
@@ -452,19 +461,43 @@ function renderDesktopProduct(product, recToken) {
     ].join("");
 }
 
+function getImageHtml(product){
+  var src = product.image;
+  var splitImageSrc = src.split(".jpg");
+  var img200 = splitImageSrc[0] + '_200x.jpg' +  splitImageSrc[1];
+  var img400 = splitImageSrc[0] + '_400x.jpg' +  splitImageSrc[1];
+  var img600 = splitImageSrc[0] + '_600x.jpg' +  splitImageSrc[1];
+  var img800 = splitImageSrc[0] + '_800x.jpg' +  splitImageSrc[1];
+  var img1000 = splitImageSrc[0] + '_1000x.jpg' +  splitImageSrc[1];
+  var img1200 = splitImageSrc[0] + '_1200x.jpg' +  splitImageSrc[1];
+  var img2000 = splitImageSrc[0] + '_2000x.jpg' +  splitImageSrc[1];
+  
+  var imageHtml = `
+  <img 
+src="${img600}"
+  alt="Text" 
+  class="img-fluid"
+  >`
+  return imageHtml;
+}
 
 function renderMobileProduct(product, recToken) {
   var productUrl = updateQueryStringParameter(product.url, 'recToken', recToken);
+  var imageHtml = getImageHtml(product);
 
   return [
-    '<div class="recs-product-sect col-8 col-sm-8 col-md-6 col-lg-3 col-xl-3">',
-    `<a href=${productUrl} style="text-decoration: none; color:black">`,
-	'<image src="' + product.image + '" alt="'+ product.title +'" class="img-fluid"></image>',
+    '<li class="splide__slide">',    
+    '<div class="">',
+    imageHtml,
     '<div class="post-image-div"></div>',
-    '<p class="product-title text-center text-uppercase">' + product.title + '</p>',
-    '<p class="product-price text-center text-uppercase">' + formatMoney(product.price, window.moneyFormat) + '</p>',
+    '<p class="product-title text-center text-uppercase">',
+    `<a href="${productUrl}" class="main-link" style="text-decoration: none; color:black">`,
+    `${product.title}`,
     '</a>',
+    '</p>',
+    '<p class="product-price text-center text-uppercase">' + formatMoney(product.price, window.moneyFormat) + '</p>',
     '</div>',
+    '</li>',
     ].join("");
 }
 
