@@ -125,7 +125,7 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
 ## ToDo
 
 Get ready to call model endpoints.
-
+- [ ] Update front and backend to use retail API v2
 - [ ] Hexxee phase 2
     - [x] Ability to populate *you may also like* with shopify recs or GCP
     - [x] Ability to add recommended for you to homepage
