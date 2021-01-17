@@ -18,33 +18,13 @@ async function requestShopifyRecsAsync(productId) {
   });
 }
 
-async function requestShopifyRecentlyViewedAsync() {
-  // recently viewed products are stored using cookies. I need to retrieve them.
-  const baseUrl = `/recently-viewed/products`;
-  const url = baseUrl + "&limit=8"
-  const response = await fetch(url);
-//   console.log(response);
-  const data = await response.json();
-  const products = data.products;
-  return products.map(function(p){
-    return {
-      image: p.images[0],
-      title: p.title,
-      price: p.price,
-      url: p.url
-    }
-  });
-}
-
-async function requestRecommendationsAsync(payload) {
+async function requestRecommendationsAsync(payload, placement) {
   var t0 = performance.now()
-  const placement = 'recently_viewed_default';
   const url = `https://us-central1-hexxee-personalisation.cloudfunctions.net/getRecommendations`
   const completePayload = {
-    placement: placement,
     payload: payload,
+    placement: placement,
   }
-//   console.log(JSON.stringify(completePayload));
   const response = await fetch(url, { 
     method: 'POST',
     mode: 'cors',
@@ -55,6 +35,7 @@ async function requestRecommendationsAsync(payload) {
     body: JSON.stringify(completePayload)
   });
   const data = await response.json();
+  console.log(data);
   var t1 = performance.now()
   console.log("Call to requestRecommendationsAsync took " + (t1 - t0) + " milliseconds.")
   return data;
@@ -72,51 +53,36 @@ async function getRecommendedForYouProducts(customerId, callback){
 //   console.log(`User requested recommended products for them`);
   
   ga(async function(tracker) {
-    
     var clientId = tracker.get('clientId');
+    var variation_id = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);
 	var show_recs = checkRecsEnabled(clientId);
     if (show_recs === false){
       	console.log(`Recommendations not enabled for this experiment.`);
       	return
-    }  
-    var filterString = "";
-   	var dryRun = true;
-    var contextEventType = "detail-page-view";
-    
-//     console.log(`customer id = ${customerId}`);
-//     console.log(`client id = ${clientId}`);
-    
-    var payload = {
-//       "filter": filterString,
-      "dryRun": dryRun,
-      "userEvent": {
-        "eventType": `${contextEventType}`,
-        "userInfo": {
-          "visitorId": `${clientId}`, // unique across browser sessions
-//           "userId": `${customerId}`, // unique across device sessions
-//           "ipAddress": "ip-address",
-//           "userAgent": "user-agent"
-        },
-        "eventDetail": {
-//           "experimentIds": "experiment-group"
-        },
-        "productEventDetail": {
-          "productDetails": [
-            {
-              "id": `${1234}`,
-            }
-          ]
-        }
-      }
     }
-    
-   	var result = await requestRecommendationsAsync(payload);
+    var placement = "recently_viewed_default" // TODO: change when model trained
+    var userEvent = {
+      "eventType": 'home-page-view',
+      "visitorId": `${clientId}`,
+      "experimentIds": [
+        `${variation_id}`,
+      ],
+      "userInfo": {
+        "userId": `${customerId}`,
+      },
+    };
+    const fullPayload = {
+      "userEvent": userEvent,
+      "pageSize": MAXRECS,
+      "filter": "filterOutOfStockItems",
+      "validateOnly": true, // TODO: set to false for real recs
+    }
+   	var result = await requestRecommendationsAsync(fullPayload, placement);
     var recommendationToken = result.recommendationToken;
     var productIds = result.results.slice(0, MAXRECS);
     if (productIds.length === 0){
       return
     }
-    showRecommendationsLoadingSection("recommended-for-you")
     var products = await getShopifyProductPayloadsAsync(productIds)
     if (products.length === 0){
     	return;
@@ -131,49 +97,35 @@ function getYouMayAlsoLikeProducts(customerId, product){
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
-    var show_recs = checkRecsEnabled(clientId);
+    var variation_id = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);
+	var show_recs = checkRecsEnabled(clientId);
     if (show_recs === false){
       	console.log(`Recommendations not enabled for this experiment.`);
       	return
     }
-    var filterString = "";
-   	var dryRun = true;
-    var contextEventType = "detail-page-view";
-    
-//     console.log(`customer id = ${customerId}`);
-//     console.log(`client id = ${clientId}`);
-    
-    var payload = {
-//       "filter": filterString,
-      "dryRun": dryRun,
-      "userEvent": {
-        "eventType": `${contextEventType}`,
-        "userInfo": {
-          "visitorId": `${clientId}`, // unique across browser sessions
-//           "userId": `${customerId}`, // unique across device sessions
-//           "ipAddress": "ip-address",
-//           "userAgent": "user-agent"
-        },
-        "eventDetail": {
-//           "experimentIds": "experiment-group"
-        },
-        "productEventDetail": {
-          "productDetails": [
-            {
-              "id": `${product.id}`,
-            }
-          ]
-        }
-      }
+    var placement = "recently_viewed_default" // TODO: change when model trained
+    var userEvent = {
+      "eventType": 'home-page-view',
+      "visitorId": `${clientId}`,
+      "experimentIds": [
+        `${variation_id}`,
+      ],
+      "userInfo": {
+        "userId": `${customerId}`,
+      },
+    };
+    const fullPayload = {
+      "userEvent": userEvent,
+      "pageSize": MAXRECS,
+      "filter": "filterOutOfStockItems",
+      "validateOnly": true, // TODO: set to false for real recs
     }
-    
-   	var result = await requestRecommendationsAsync(payload);
+   	var result = await requestRecommendationsAsync(fullPayload, placement);
     var recommendationToken = result.recommendationToken;
-    var productIds = result.results.slice(0, MAXRECS);
+    var productIds = result.results;
     if (productIds.length === 0){
       return
     }
-    showRecommendationsLoadingSection("recommended-for-you")
     var products = await getShopifyProductPayloadsAsync(productIds)
     if (products.length === 0){
     	return;
@@ -187,49 +139,35 @@ function getRecentlyViewedProducts(customerId, product){
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
-    var show_recs = checkRecsEnabled(clientId);
+    var variation_id = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);
+	var show_recs = checkRecsEnabled(clientId);
     if (show_recs === false){
       	console.log(`Recommendations not enabled for this experiment.`);
       	return
     }
-    var filterString = "";
-   	var dryRun = true;
-    var contextEventType = "detail-page-view";
-    
-//     console.log(`customer id = ${customerId}`);
-//     console.log(`client id = ${clientId}`);
-    
-    var payload = {
-//       "filter": filterString,
-      "dryRun": dryRun,
-      "userEvent": {
-        "eventType": `${contextEventType}`,
-        "userInfo": {
-          "visitorId": `${clientId}`, // unique across browser sessions
-//           "userId": `${customerId}`, // unique across device sessions
-//           "ipAddress": "ip-address",
-//           "userAgent": "user-agent"
-        },
-        "eventDetail": {
-//           "experimentIds": "experiment-group"
-        },
-        "productEventDetail": {
-          "productDetails": [
-            {
-              "id": `${product.id}`,
-            }
-          ]
-        }
-      }
+    var placement = "recently_viewed_default"
+    var userEvent = {
+      "eventType": 'home-page-view',
+      "visitorId": `${clientId}`,
+      "experimentIds": [
+        `${variation_id}`,
+      ],
+      "userInfo": {
+        "userId": `${customerId}`,
+      },
+    };
+    const fullPayload = {
+      "userEvent": userEvent,
+      "pageSize": MAXRECS,
+      "filter": "filterOutOfStockItems",
+      "validateOnly": false,
     }
-    
-   	var result = await requestRecommendationsAsync(payload);
+   	var result = await requestRecommendationsAsync(fullPayload, placement);
     var recommendationToken = result.recommendationToken;
     var productIds = result.results.slice(0, MAXRECS);
     if (productIds.length === 0){
       return
     }
-    showRecommendationsLoadingSection("recommended-for-you")
     var products = await getShopifyProductPayloadsAsync(productIds)
     if (products.length === 0){
     	return;
@@ -269,11 +207,6 @@ async function getShopifyProductPayloadsAsync(products){
     return out;
 }
 
-function showRecommendationsLoadingSection(sectionId){
-	//  get sections to change HTML for   
-//     var recsDiv = document.getElementById(sectionId);
-//     recsDiv.style.display = "block";
-};
 
 function showRecommendations(products, recommendationToken, sectionId){
   	var t0 = performance.now()
