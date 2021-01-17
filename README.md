@@ -38,13 +38,11 @@
 
 - On the recs AI dashboard in GCP
     - create an unregistered API key to log user events
-    - create a registered API key to request predictions
 
 - Set environment variables
 
 ```bash
 export RECS_EVENT_KEY=<your recs event key>
-export RECS_PREDICT_KEY=<your predict key>
 export SHOPIFY_URL=<your website homepage>
 export SHOPIFY_SHOP_NAME=<your shop name>
 export SHOPIFY_API_KEY=<your private app api key>
@@ -57,7 +55,7 @@ export OPTIMIZELY_SDK_KEY=<your optimizely production sdk key>
 - Configure firebase
 
 ```bash
-firebase functions:config:set shopify.webhook_secret=${SHOPIFY_WEBHOOK_SECRET} shopify.currency_code=${SHOPIFY_CURRENCY_CODE} shopify.url=${SHOPIFY_URL} shopify.shop_name=${SHOPIFY_SHOP_NAME} shopify.api_key=${SHOPIFY_API_KEY} shopify.password=${SHOPIFY_APP_PASSWORD} recs.event_key=${RECS_EVENT_KEY} recs.predict_key=${RECS_PREDICT_KEY} optimizely.sdk_key=${OPTIMIZELY_SDK_KEY}
+firebase functions:config:set shopify.webhook_secret=${SHOPIFY_WEBHOOK_SECRET} shopify.currency_code=${SHOPIFY_CURRENCY_CODE} shopify.url=${SHOPIFY_URL} shopify.shop_name=${SHOPIFY_SHOP_NAME} shopify.api_key=${SHOPIFY_API_KEY} shopify.password=${SHOPIFY_APP_PASSWORD} recs.event_key=${RECS_EVENT_KEY} optimizely.sdk_key=${OPTIMIZELY_SDK_KEY}
 
 firebase functions:config:get > ./functions/.runtimeconfig.json
 ```
@@ -125,6 +123,8 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
 - Use functions in `recommendation_requests.js` to load recommendations
 
 ## ToDo
+
+Get ready to call model endpoints.
 
 - [ ] Hexxee phase 2
     - [x] Ability to populate *you may also like* with shopify recs or GCP
