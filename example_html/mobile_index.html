@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <!-- Splide -->
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/js/splide.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/css/splide.min.css">
+</head>
+
+<body>
+    <div id="splide" class="splide container-fluid">
+        <div class="row splide__track" style="background-color: black;">
+            <ul id="1" class="splide__list">
+                <!-- set by javascript -->
+            </ul>
+        </div>
+
+        <script>
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            function getProducts(callback) {
+                (async function () {
+                    console.log('Retrieving products from backend')
+                    await sleep(500);
+                    products = [...Array(5).keys()].map(function (i) {
+                        return { src: 'https://cdn.shopify.com/s/files/1/0077/0182/3585/products/FunkyVibes_600x.jpg?v=1596624159' }
+                    });
+                    console.log(`Products retrieved: ${JSON.stringify(products)}`)
+                    productsHTML = products.map(function (p) {
+                        return `
+                        <li class="splide__slide">
+                            <image
+                                src="${p.src}"
+                                class="img-fluid">
+                            </image>
+                        </li>`;
+                    });
+                    var splideInner = document.getElementById('1');
+                    splideInner.innerHTML = productsHTML.join("");
+                    callback();
+                })();
+            }
+
+            getProducts(function () {
+                console.log('Finished setting innerHTML')
+                new Splide('#splide', {
+                    type: 'slide',
+                    perPage: 1.75,
+                    focus: 'center',
+                    gap: '10px',
+                    arrows: false,
+                    pagination: false,
+                    trimSpace: false,
+                    swipeDistanceThreshold: 200,
+                    flickVelocityThreshold: 0.9,
+                    flickPower: 100,
+                    waitForTransition: false,
+                }).mount();
+            });
+        </script>
+
+        <!-- Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous">
+            </script>
+    </div>
+</body>
+
+</html>

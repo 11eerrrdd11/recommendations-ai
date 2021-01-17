@@ -4,7 +4,7 @@ const { logUserEventAsync } = require("./helpers");
 const cors = require('cors')({origin: functions.config().shopify.url});
 const PROJECT_ID = process.env.GCLOUD_PROJECT;
 const fetch = require("node-fetch");
-const {webhookRequestFromShopify, getUserFromCartAsync, parseLineItems} = require('./helpers')
+const {webhookRequestFromShopify, getUserFromCartAsync, parseLineItems, getAccessTokenAsync} = require('./helpers')
 const optimizely = require('@optimizely/optimizely-sdk');
 const optimizelyClientInstance = optimizely.createInstance({
     sdkKey: functions.config().optimizely.sdk_key,
@@ -44,13 +44,19 @@ exports.getRecommendations = functions.https.onRequest((request, response) => {
         try {
             functions.logger.log(`User requested recs`);
             const { payload, placement } = request.body;
-            const apiKey = functions.config().recs.predict_key;
-            const url = `https://recommendationengine.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/global/catalogs/default_catalog/eventStores/default_event_store/placements/${placement}:predict?key=${apiKey}`;
+            const accessToken = await getAccessTokenAsync();
+            const headers = { 
+                'Content-Type': 'application/json',  
+                'Authorization': `Bearer ${accessToken}`
+            };
+            // const url = `https://recommendationengine.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/global/catalogs/default_catalog/eventStores/default_event_store/placements/${placement}:predict?key=${apiKey}`;
+            const url = `https://retail.googleapis.com/v2/projects/${PROJECT_ID}/locations/global/catalogs/default_catalog/placements/${placement}:predict`
             functions.logger.log(`Requesting predictions from ${url}`);
+            console.log(`body: ${JSON.stringify(payload)}`)
     
             const result = await fetch(url, { 
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify(payload)
             });
             const status = result.status;

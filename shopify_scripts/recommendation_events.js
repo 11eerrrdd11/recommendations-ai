@@ -1,17 +1,14 @@
 // functions to log user behaviour to GCP recommendations AI
-async function logUserEvent(payload) {  
+async function logUserEvent(payload) {
   
   // Add the optimizely variant ID to the payload      
   const clientId = payload.userInfo.visitorId;
-  const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);  
-  
-  console.log(`OPTIMIZELY VARIATIONID=${experimentVariationId}`);
+  const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);
   Object.assign(payload, {'eventDetail': {'experimentIds': experimentVariationId, "recommendationToken": payload.eventDetail.recommendationToken,}})
-  console.log(payload);
   
   // Log the event
-  const url = `https://us-central1-recommendations-ai-1234.cloudfunctions.net/logUserEvent`
-  console.log(JSON.stringify(payload));
+  const url = `https://us-central1-hexxee-personalisation.cloudfunctions.net/logUserEvent`
+//   console.log(JSON.stringify(payload));
   const response = await fetch(url, { 
     method: 'POST',
     mode: 'cors',
@@ -23,7 +20,6 @@ async function logUserEvent(payload) {
   });
   const data = await response.json();
   console.log(data);
-//   alert(JSON.stringify(data));
   return data;
 }
 
@@ -48,15 +44,15 @@ async function getCartAsync(){
 ///////////////////////////////
 
 function detailPageView(product, attributionToken){
-  console.log(`User viewed product detail page`);
+//   console.log(`User viewed product detail page`);
   
   ga(function(tracker) {
     var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
+//     console.log(`client id = ${clientId}`);
     var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
+//     console.log(`customer id = ${customerId}`);
     var attributionToken = getParameterByName('recToken');
-    console.log(`attribution token = ${attributionToken}`);
+//     console.log(`attribution token = ${attributionToken}`);
     var user_event = {
       "eventType" : "detail-page-view",
       "userInfo": {
@@ -80,13 +76,13 @@ function detailPageView(product, attributionToken){
 };
 
 function homePageView(product){
-  console.log(`User viewed home page`)
+//   console.log(`User viewed home page`)
   
   ga(function(tracker) {
     var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
+//     console.log(`client id = ${clientId}`);
     var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
+//     console.log(`customer id = ${customerId}`);
     var user_event = {
       "eventType": "home-page-view",
       "userInfo": {
@@ -140,16 +136,16 @@ function homePageView(product){
 ///////////////////////////////////////
 
 function checkoutStart(){
-  console.log(`User started checkout`)
+//   console.log(`User started checkout`)
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
     var customerId = tracker.get('userId');
-    console.log(`client id = ${clientId}`);
-    console.log(`customerId = ${customerId}`);
+//     console.log(`client id = ${clientId}`);
+//     console.log(`customerId = ${customerId}`);
     
     const response = await fetch('/cart.js', {method: 'GET'})
-    console.log(response);
+//     console.log(response);
     const json = await response.json();
     const currencyCode = json.currency;
     const items = json.items;
@@ -165,7 +161,7 @@ function checkoutStart(){
         quantity: item.quantity
       });
     });
-    console.log(productDetails);
+//     console.log(productDetails);
     
     var user_event = {
       "eventType": "checkout-start",
@@ -192,14 +188,21 @@ function checkoutStart(){
   });
 }
 
-function categoryPageView(collectionTags, collectionId){
-  console.log(`User viewed category page`)
+function categoryPageView(collection, collectionTags){
+//   console.log(`User viewed category page`)
+//   console.log(collection);
+//   console.log(collectionTags);
+  
+  if (collectionTags.length < 1){
+  	collectionTags = [collection.handle];
+  }
+  console.log(`Collection tags: ${collectionTags}`);
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
     var customerId = tracker.get('userId');
-    console.log(`client id = ${clientId}`);
-    console.log(`customerId = ${customerId}`);
+//     console.log(`client id = ${clientId}`);
+//     console.log(`customerId = ${customerId}`);
     
     var user_event = {
       "eventType": "category-page-view",
@@ -221,13 +224,13 @@ function categoryPageView(collectionTags, collectionId){
 }
 
 function search(query){
-  console.log(`User searched`)
+//   console.log(`User searched`)
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
+//     console.log(`client id = ${clientId}`);
     var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
+//     console.log(`customer id = ${customerId}`);
 
     var user_event = {
       "eventType": "search",
@@ -247,13 +250,13 @@ function search(query){
 }
 
 function shoppingCartPageView(){
-  console.log(`User viewed shopping cart page`)
+//   console.log(`User viewed shopping cart page`)
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
+//     console.log(`client id = ${clientId}`);
     var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
+//     console.log(`customer id = ${customerId}`);
     
     const response = await fetch('/cart.js', {method: 'GET'})
     const json = await response.json();
@@ -271,7 +274,7 @@ function shoppingCartPageView(){
         quantity: item.quantity
       });
     });
-    console.log(productDetails);
+//     console.log(productDetails);
     
     var user_event = {
       "eventType": "shopping-cart-page-view",
@@ -296,13 +299,13 @@ function shoppingCartPageView(){
 ///////////////
 
 function pageVisit(){
-  console.log(`User visited page`)
+//   console.log(`User visited page`)
   
   ga(async function(tracker) {
     var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
+//     console.log(`client id = ${clientId}`);
     var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
+//     console.log(`customer id = ${customerId}`);
     
     // Get all products on this page
     
@@ -326,64 +329,14 @@ function pageVisit(){
   });
 }
 
-function refund(){
-  console.log(`User processed refund`)
-}
-
-function removeFromList(){
-  console.log(`User removed from list`)
-}
-
-function addToList(){
-  console.log(`User added product to list`)
-}
-
-console.log('loaded recommendations AI events functions');
-
-function saveClientIdToFirestore(){
-  console.log(`Saving clientId to firestore`)
-  
-  ga(async function(tracker) {
-    var clientId = tracker.get('clientId');
-    console.log(`client id = ${clientId}`);
-    var customerId = tracker.get('userId');
-    console.log(`customer id = ${customerId}`);
-    
-    const response = await fetch('/cart.js', {method: 'GET'})
-    const json = await response.json();
-    const cartId = json.token;
-    const payload = {
-      clientId: clientId,
-      userId: customerId,
-      cartId: cartId,
-    }
-    
-    // save data to firestore with cloud function
-    const url = `https://us-central1-recommendations-ai-1234.cloudfunctions.net/saveClientId`
-    const resp = await fetch(url, { 
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-    const data = await resp.json();
-    console.log(data);
-  });
-}
-
-
 async function saveClientCartRelationship(){
-  console.log(`adding client id to cart as private attribute`);
+//   console.log(`adding client id to cart as private attribute`);
   ga(async function(tracker) {
     try {
       
       // Save private attribute to cart to fix cart ID
       const clientId = tracker.get('clientId');
       const customerId = tracker.get('userId');
-      const experimentVariationId = optimizelyClientInstance.getVariation('recommended_products_test', `${clientId}`);
       const payload = {
         __clientId: `${clientId}`
       }
@@ -403,9 +356,8 @@ async function saveClientCartRelationship(){
         clientId: clientId,
         userId: customerId,
         cartId: cartId,
-        experimentVariationId: experimentVariationId,
       }
-      const url = `https://us-central1-recommendations-ai-1234.cloudfunctions.net/saveClientId`
+      const url = `https://us-central1-hexxee-personalisation.cloudfunctions.net/saveClientId`
       const serverResponse = await fetch(url, { 
         method: 'POST',
         mode: 'cors',
@@ -416,10 +368,18 @@ async function saveClientCartRelationship(){
         body: JSON.stringify(firestorePayload)
       });
       const data = await serverResponse.json();
-      console.log(data);
+//       console.log(data);
       
     } catch (e){
     	console.error(e);
     }
   });
+}
+
+async function getCollectionProductsAsync(collectionId){
+	const response = await fetch(`/admin/api/2021-01/collections/${collectionId}/products.json`, {method: 'GET'});
+//     console.log(response);
+    const json = await response.json();
+//     console.log(json);
+  	return json.products;
 }
