@@ -3,26 +3,7 @@ const fetch = require("node-fetch");
 const Shopify = require('shopify-api-node');
 const { htmlToText } = require('html-to-text');
 const PROJECT_ID = process.env.GCLOUD_PROJECT;
-
-
-getAccessTokenAsync = async () => {
-    const scopes = "https://www.googleapis.com/auth/cloud-platform"
-    const url = `http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token?scopes=${scopes}`
-    const result = await fetch(url, {
-        headers: {
-            "Metadata-Flavor": "Google"
-        },
-    });
-    const status = result.status;
-    functions.logger.log(`Call to get token has status ${status}`);
-    const data = await result.json()
-    functions.logger.log(`Call to get token has data ${JSON.stringify(data)}`);
-    const accessToken = data.access_token;
-    if (accessToken === null){
-        throw new Error(`Failed to retrieve access token`);
-    }
-    return accessToken;
-}
+const {getAccessTokenAsync} = require('./helpers')
 
 const _getShopifyProductsAsync = async (shopify) => {
     let products = [];
