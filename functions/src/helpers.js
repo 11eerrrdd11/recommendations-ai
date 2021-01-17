@@ -5,6 +5,24 @@ const fetch = require("node-fetch");
 const crypto = require("crypto");
 const WEBHOOK_SECRET = functions.config().shopify.webhook_secret;
 
+exports.getAccessTokenAsync = async () => {
+    const scopes = "https://www.googleapis.com/auth/cloud-platform"
+    const url = `http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token?scopes=${scopes}`
+    const result = await fetch(url, {
+        headers: {
+            "Metadata-Flavor": "Google"
+        },
+    });
+    const status = result.status;
+    functions.logger.log(`Call to get token has status ${status}`);
+    const data = await result.json()
+    functions.logger.log(`Call to get token has data ${JSON.stringify(data)}`);
+    const accessToken = data.access_token;
+    if (accessToken === null){
+        throw new Error(`Failed to retrieve access token`);
+    }
+    return accessToken;
+}
 
 exports.logUserEventAsync = async (user_event) => {
     functions.logger.log(`event ${JSON.stringify(user_event)}`);
