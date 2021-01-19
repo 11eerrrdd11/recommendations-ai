@@ -124,20 +124,27 @@ var optimizelyClientInstance = optimizelySdk.createInstance({
 
 ## ToDo
 
-Get ready to call model endpoints.
-- [ ] Update front and backend to use retail API v2
+Hypotheses:
+
+Using new product carousels does not change revenue per session
+Using new product carousels does not change PDP page views
+Using GCP recs over shopifies increases revenue per session
+Using GCP recs over shopifies increases PDP page views
+Adding recs to home page increases revenue per session
+Adding recs to home page increases PDP page views
+
+
+- [ ] fix image bottom getting chopped off when image aspect ratio different
 - [ ] Hexxee phase 2
     - [x] Ability to populate *you may also like* with shopify recs or GCP
     - [x] Ability to add recommended for you to homepage
     - [x] OK new carousels with Hexxee team
     - [ ] Train *recommended for you*
     - [ ] run AB test to compare adding *recommended for you* to home page (make sure to use production optimizely keys)
-    - [ ] Train *others you may like*
-    - [ ] Ability to populate *recently viewed* with shopify or GCP
+    - [x] Train *others you may like*
     - [ ] run AB test to compare carousels
-    - [ ] run AB test to compare *you may also like*
-    - [ ] run AB test to compare *recently viewed*
-    - [ ] run AB test to compare number of recs
+    - [ ] run AB test to compare *you may also like* backends
+    - [ ] run AB test to compare *recently viewed* backends
     - [ ] Train *shopping cart model*
     - [ ] run AB test to compare adding shopping cart expansion
 - [ ] Display recommendations
@@ -203,6 +210,11 @@ Get ready to call model endpoints.
     - [ ] Track events with webhooks and client-side javascript function calls
     - [ ] Load tracking code and javascript functions with script tags
     - [ ] Render recommendations with script tags
+- [ ] Update front and backend to use retail API v2
+    - [ ] update logUserEventAsync to new endpoint
+    - [ ] remove unused user events from front/backend
+    - [ ] update all user event payloads to new format with all info
+    - [ ] update catalog syncing code to use new api
 
 ## Comparison
 
@@ -218,5 +230,5 @@ Get ready to call model endpoints.
 
 - Clients are bad at even simple tasks like setting up a GCP account with billing
 - Clients don't understand that *recommended for you* doesn't appear unless that user has a browsing history
-- Clients don't understand the *you may also like* is not personalized per user
-
+- Clients don't understand they can just AB test to safely roll out
+- GCP model training requires significant data. To get up and running fast I need to import the customer's existing data. The obvious data formats are facebook, google and shopify analytics. The problem is for each event I need to join it with other sources and match these back to the user Ids I'm tracking with my own analytics code.
