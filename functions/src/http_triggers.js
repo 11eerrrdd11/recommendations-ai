@@ -16,22 +16,27 @@ exports.saveClientId = functions.https.onRequest((request, response) => {
     // use cors to prevent requests from websites other than the client's shopify domain
     cors(request, response, async () => {
         try {
-            const { clientId, userId, cartId, experimentVariationId } = request.body;
+            var { clientId, userId, cartId, experimentVariationId } = request.body;
             functions.logger.log(`clientId:${clientId} userId:${userId} cartId:${cartId} experimentVariationId:${experimentVariationId}`);
 
             // add the relationship between clientIds and carts to firestore
-            const docRef = admin.firestore().collection('clients').doc(clientId);
-            await docRef.set({
-                userId: userId,
+            if (userId.length < 1){
+                userId = null;
+            }
+            const payload = {
                 cartIds: admin.firestore.FieldValue.arrayUnion(cartId),
-                experimentVariationId: experimentVariationId,
-            }, { merge: true});
-
+            };
+            Object.assign(payload, {
+                userId, experimentVariationId
+            })
+            functions.logger.log(`Payload=${JSON.stringify(payload)}`)
+            const docRef = admin.firestore().collection('clients').doc(clientId);
+            await docRef.set(payload, { merge: true});
             response.status(200).send({})
             return
         }
         catch(error){
-            console.log(error)
+            functions.logger.error(error)
             response.status(500).send(error)
             return
         }
@@ -67,7 +72,7 @@ exports.getRecommendations = functions.https.onRequest((request, response) => {
             return
         }
         catch(error){
-            console.log(error)
+            functions.logger.log(error)
             response.status(500).send(error)
             return
         }
@@ -129,7 +134,7 @@ exports.logUserEvent = functions.https.onRequest((request, response) => {
             return
         }
         catch(error){
-            console.log(error)
+            functions.logger.error(error)
             response.status(500).send(error)
             return
         }
