@@ -88,43 +88,42 @@ exports.getRecommendations = functions.https.onRequest((request, response) => {
 
 const logOptimizelyPurchaseEvent = async (amount, currency, visitorId) => {
     functions.logger.log(`Logging optimizely order-paid event for user ${visitorId}: ${amount} ${currency}`);
-    return optimizelyClientInstance.onReady({ timeout: 15000 }).then(async (result) => {
-        if (result.success === false){
-            throw new Error(`Failed to instantiate optimizely client: ${result.reason}`);
-        }
-        const floatAmount = parseFloat(amount);
-        functions.logger.log(`Float amount=${floatAmount}`);
+    const result = await optimizelyClientInstance.onReady({ timeout: 15000 });
+    if (result.success === false){
+        throw new Error(`Failed to instantiate optimizely client: ${result.reason}`);
+    }
+    const floatAmount = parseFloat(amount);
+    functions.logger.log(`Float amount=${floatAmount}`);
 
-        // convert amount into cents
-        const exchangeResult = await fetch('https://api.exchangeratesapi.io/latest?base=USD', { 
-            method: 'GET',
-        });
-        const status = exchangeResult.status;
-        functions.logger.log(`Call to exchange rates API returned status ${status}`);
-        if (status !== 200){
-            throw new Error(`Failed to retrieve exchange rates`);
-        }
-        const data = await exchangeResult.json()
-        functions.logger.log(`Exhcange rates=${JSON.stringify(data)}`);
-        const exchangeRate = data.rates[currency];
-        functions.logger.log(`Exhcange rate=${exchangeRate}`);
-        const amountInDollars = floatAmount / exchangeRate;
-        if (amountInDollars === null){
-            throw new Error(`Failed to convert ${amount} ${currency} into dollars.`);
-        }
-        functions.logger.log(`Amount in dollars = ${amountInDollars}`);
-        const amountInCents = amountInDollars * 100;
+    // convert amount into cents
+    const exchangeResult = await fetch('https://api.exchangeratesapi.io/latest?base=USD', { 
+        method: 'GET',
+    });
+    const status = exchangeResult.status;
+    functions.logger.log(`Call to exchange rates API returned status ${status}`);
+    if (status !== 200){
+        throw new Error(`Failed to retrieve exchange rates`);
+    }
+    const data = await exchangeResult.json()
+    functions.logger.log(`Exhcange rates=${JSON.stringify(data)}`);
+    const exchangeRate = data.rates[currency];
+    functions.logger.log(`Exhcange rate=${exchangeRate}`);
+    const amountInDollars = floatAmount / exchangeRate;
+    if (amountInDollars === null){
+        throw new Error(`Failed to convert ${amount} ${currency} into dollars.`);
+    }
+    functions.logger.log(`Amount in dollars = ${amountInDollars}`);
+    const amountInCents = amountInDollars * 100;
 
-        const attributes = {};
-        const tags = {
-            revenue: amountInCents
-        };
-        functions.logger.log(`${amount} ${currency} = ${amountInCents} cents`);
-        functions.logger.log(`Logging order-paid to optimizely with tags: ${JSON.stringify(tags)} and sdkKey=${OPTIMIZELY_SDK_KEY}`);
-        const trackResult = await optimizelyClientInstance.track("order-paid", visitorId, attributes, tags);
-        functions.logger.log(`Result from logging event: ${JSON.stringify(trackResult)}`);
-        return;
-      });
+    const attributes = {};
+    const tags = {
+        revenue: amountInCents
+    };
+    functions.logger.log(`${amount} ${currency} = ${amountInCents} cents`);
+    functions.logger.log(`Logging order-paid to optimizely with tags: ${JSON.stringify(tags)} and sdkKey=${OPTIMIZELY_SDK_KEY}`);
+    const trackResult = await optimizelyClientInstance.track("order-paid", visitorId, attributes, tags);
+    functions.logger.log(`Result from logging event: ${JSON.stringify(trackResult)}`);
+    return;
 }
 
 exports.logUserEvent = functions.https.onRequest((request, response) => {
