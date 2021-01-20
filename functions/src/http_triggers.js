@@ -113,7 +113,7 @@ const logOptimizelyPurchaseEvent = async (amount, currency, visitorId) => {
         throw new Error(`Failed to convert ${amount} ${currency} into dollars.`);
     }
     functions.logger.log(`Amount in dollars = ${amountInDollars}`);
-    const amountInCents = amountInDollars * 100;
+    const amountInCents = Math.round(amountInDollars * 100);
 
     const attributes = {};
     const tags = {
