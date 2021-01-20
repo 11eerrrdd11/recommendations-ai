@@ -7,6 +7,9 @@ const {saveClientId, getRecommendations, logUserEvent, orderPaid} = require('./s
 const {updateProductCatalog} = require('./src/pubsub_triggers');
 
 admin.initializeApp(functions.config().firebase);
+admin.firestore().settings({
+    ignoreUndefinedProperties: true
+})
 
 module.exports = {
     updateProductCatalog,

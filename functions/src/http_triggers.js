@@ -6,8 +6,9 @@ const PROJECT_ID = process.env.GCLOUD_PROJECT;
 const fetch = require("node-fetch");
 const {webhookRequestFromShopify, getUserFromCartAsync, parseLineItems, getAccessTokenAsync} = require('./helpers')
 const optimizely = require('@optimizely/optimizely-sdk');
+const OPTIMIZELY_SDK_KEY = functions.config().optimizely.sdk_key;
 const optimizelyClientInstance = optimizely.createInstance({
-    sdkKey: functions.config().optimizely.sdk_key,
+    sdkKey: OPTIMIZELY_SDK_KEY,
 });
 
 
@@ -113,8 +114,9 @@ const logOptimizelyPurchaseEvent = async (amount, currency, visitorId) => {
             revenue: amountInCents
         };
         functions.logger.log(`${amount} ${currency} = ${amountInCents} cents`);
-        functions.logger.log(`Logging order-paid to optimizely with tags: ${JSON.stringify(tags)}`);
-        await optimizelyClientInstance.track("order-paid", visitorId, attributes, tags);
+        functions.logger.log(`Logging order-paid to optimizely with tags: ${JSON.stringify(tags)} and sdkKey=${OPTIMIZELY_SDK_KEY}`);
+        const trackResult = await optimizelyClientInstance.track("order-paid", visitorId, attributes, tags);
+        functions.logger.log(`Result from logging event: ${JSON.stringify(trackResult)}`);
         return;
       });
 }
