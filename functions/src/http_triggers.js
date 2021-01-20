@@ -17,8 +17,14 @@ exports.saveClientId = functions.https.onRequest((request, response) => {
     // use cors to prevent requests from websites other than the client's shopify domain
     cors(request, response, async () => {
         try {
+            functions.logger.log(`Request body: ${JSON.stringify(request.body)}`)
             var { clientId, userId, cartId, experimentVariationId } = request.body;
             functions.logger.log(`clientId:${clientId} userId:${userId} cartId:${cartId} experimentVariationId:${experimentVariationId}`);
+
+            if (typeof experimentVariationId === 'undefined'){
+                functions.logger.error(`experimentVariantId is undefined`)
+                experimentVariationId = null;
+            }
 
             // add the relationship between clientIds and carts to firestore
             if (userId.length < 1){
