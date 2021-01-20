@@ -132,6 +132,9 @@ exports.logUserEvent = functions.https.onRequest((request, response) => {
             functions.logger.log(`Call to recs API returned status ${status}`);
             response.status(status)
             const data = await result.json()
+            if (status !== 200){
+                functions.logger.error(JSON.stringify(data))
+            }
             response.send(data)
             return
         }
