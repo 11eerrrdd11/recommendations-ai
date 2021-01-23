@@ -18,7 +18,7 @@ exports.cartCreated = functions.https.onRequest(async (request, response) => {
         return
     } 
     catch(error){
-        console.log(error)
+        functions.logger.error(error)
         response.status(500).send(error)
         return
     }
@@ -40,7 +40,7 @@ exports.cartUpdated = functions.https.onRequest(async (request, response) => {
         return
     } 
     catch(error){
-        console.log(error)
+        functions.logger.error(error)
         response.status(500).send(error)
         return
     }

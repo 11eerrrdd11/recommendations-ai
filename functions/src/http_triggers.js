@@ -64,7 +64,7 @@ exports.getRecommendations = functions.https.onRequest((request, response) => {
             // const url = `https://recommendationengine.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/global/catalogs/default_catalog/eventStores/default_event_store/placements/${placement}:predict?key=${apiKey}`;
             const url = `https://retail.googleapis.com/v2/projects/${PROJECT_ID}/locations/global/catalogs/default_catalog/placements/${placement}:predict`
             functions.logger.log(`Requesting predictions from ${url}`);
-            console.log(`body: ${JSON.stringify(payload)}`)
+            functions.logger.log(`body: ${JSON.stringify(payload)}`)
     
             const result = await fetch(url, { 
                 method: 'POST',
@@ -162,7 +162,7 @@ exports.orderPaid = functions.https.onRequest(async (request, response) => {
     
     try {
         const order = request.body;
-        console.log(JSON.stringify(order))
+        functions.logger.log.log(JSON.stringify(order))
 
         // retrieve the clientId and customerId from the cart document
         const cartId = order.cart_token;

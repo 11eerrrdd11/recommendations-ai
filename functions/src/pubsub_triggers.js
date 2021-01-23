@@ -163,13 +163,13 @@ exports.updateProductCatalog = functions.pubsub.schedule('every 15 minutes').onR
                 }
             }
         };
-        console.log(JSON.stringify(payload))
+        functions.logger.log(JSON.stringify(payload))
         const url = `https://recommendationengine.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/global/catalogs/default_catalog/catalogItems:import`
         const headers = { 
             'Content-Type': 'application/json',  
             'Authorization': `Bearer ${accessToken}`
         };
-        console.log(JSON.stringify(headers))
+        functions.logger.log(JSON.stringify(headers))
         const result = await fetch(url, { 
             method: 'POST',
             headers: headers,

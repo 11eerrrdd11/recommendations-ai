@@ -87,7 +87,8 @@ exports.logCartEvents = functions.firestore.document("carts/{cartId}").onWrite(a
             return;
         }
     } catch (e){
-        console.log(e)
+        functions.logger.error(e)
+        return;
     }
 });
 

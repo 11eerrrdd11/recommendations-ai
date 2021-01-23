@@ -13,7 +13,7 @@ exports.checkoutUpdated = functions.https.onRequest(async (request, response) =>
     
     try {
         const checkout = request.body;
-        console.log(JSON.stringify(checkout))
+        functions.logger.log(JSON.stringify(checkout))
         const checkoutId = `${checkout.id}`;
         const cartId = `${checkout.cart_token}`;
         functions.logger.log(`Checkout ${checkoutId} updated. CartId = ${cartId}`);
@@ -28,7 +28,7 @@ exports.checkoutUpdated = functions.https.onRequest(async (request, response) =>
         response.status(200).send()
     }
     catch(error){
-        console.log(error)
+        functions.logger.error(error)
         response.status(500).send(error)
         return
     }
