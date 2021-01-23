@@ -162,7 +162,7 @@ exports.orderPaid = functions.https.onRequest(async (request, response) => {
     
     try {
         const order = request.body;
-        functions.logger.log.log(JSON.stringify(order))
+        functions.logger.log(JSON.stringify(order))
 
         // retrieve the clientId and customerId from the cart document
         const cartId = order.cart_token;
